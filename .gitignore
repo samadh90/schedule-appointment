@@ -35,6 +35,6 @@ Thumbs.db
 *.njsproj
 *.sln
 
-# Copilot CLI session files
+# Claude Code CLI — local settings only (CLAUDE.md files are committed)
 .claude/
-**/CLAUDE.md
+
