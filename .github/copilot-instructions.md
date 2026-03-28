@@ -7,9 +7,9 @@ Users browse available time slots, book with a name/email, receive a UUID cancel
 
 The app is a **monorepo** with two independent apps:
 
-| Dir | Role |
-|-----|------|
-| `server/` | Node 24 + Express + Socket.IO + SQLite |
+| Dir       | Role                                         |
+| --------- | -------------------------------------------- |
+| `server/` | Node 24 + Express + Socket.IO + SQLite       |
 | `client/` | Vue 3 + TypeScript + Vite + Tailwind + Pinia |
 
 ---
@@ -47,6 +47,7 @@ The app is a **monorepo** with two independent apps:
 ### Server re-validates everything on write
 
 Never rely on client-side checks for security. `POST /api/appointments` re-validates:
+
 - Required fields, email format, reason ≤ 500 chars
 - `start_time` in the future
 - `start_time` within business hours and outside lunch break
@@ -60,7 +61,7 @@ The server emits to **all** connected clients after every successful write:
 
 ```ts
 io.emit('slot:booked', { date: 'YYYY-MM-DD', time: 'HH:MM' })
-io.emit('slot:freed',  { date: 'YYYY-MM-DD', time: 'HH:MM' })
+io.emit('slot:freed', { date: 'YYYY-MM-DD', time: 'HH:MM' })
 ```
 
 `appointmentsStore.connect()` subscribes; `disconnect()` tears down. `App.vue` calls both.
@@ -83,11 +84,11 @@ const d = new Date('2026-03-29')
 
 ### Server env vars (`server/.env`)
 
-| Var | Default | Description |
-|-----|---------|-------------|
-| `PORT` | `3000` | HTTP listen port |
-| `TENANT_CONFIG` | — | JSON string; whitelisted keys only (see `config.ts`) |
-| `ALLOWED_ORIGINS` | `http://localhost:5173` | Comma-separated allowed CORS origins |
+| Var               | Default                 | Description                                          |
+| ----------------- | ----------------------- | ---------------------------------------------------- |
+| `PORT`            | `3000`                  | HTTP listen port                                     |
+| `TENANT_CONFIG`   | —                       | JSON string; whitelisted keys only (see `config.ts`) |
+| `ALLOWED_ORIGINS` | `http://localhost:5173` | Comma-separated allowed CORS origins                 |
 
 ### Client env vars (`client/.env`)
 
@@ -135,19 +136,19 @@ Any other key is silently dropped (prototype pollution prevention).
 
 Use only these tokens — no arbitrary values:
 
-| Role | Class |
-|------|-------|
-| App background | `bg-slate-50` |
-| Card / panel | `bg-white rounded-xl shadow-sm border border-slate-200 p-6` |
-| Input | `rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500` |
-| Slot — free | `bg-emerald-600 text-white hover:bg-emerald-700` |
-| Slot — booked | `bg-rose-400 text-white opacity-70 cursor-not-allowed` |
-| Slot — blocked | `bg-slate-300 text-slate-500 cursor-not-allowed` |
-| Primary button | `bg-emerald-600 hover:bg-emerald-700 text-white` |
-| Danger button | `bg-rose-400 hover:bg-rose-500 text-white` |
-| Error text | `text-rose-500 text-xs mt-1` |
-| Muted text | `text-slate-400` |
-| Loading skeleton | `animate-pulse bg-slate-200 rounded` |
+| Role             | Class                                                                    |
+| ---------------- | ------------------------------------------------------------------------ |
+| App background   | `bg-slate-50`                                                            |
+| Card / panel     | `bg-white rounded-xl shadow-sm border border-slate-200 p-6`              |
+| Input            | `rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500` |
+| Slot — free      | `bg-emerald-600 text-white hover:bg-emerald-700`                         |
+| Slot — booked    | `bg-rose-400 text-white opacity-70 cursor-not-allowed`                   |
+| Slot — blocked   | `bg-slate-300 text-slate-500 cursor-not-allowed`                         |
+| Primary button   | `bg-emerald-600 hover:bg-emerald-700 text-white`                         |
+| Danger button    | `bg-rose-400 hover:bg-rose-500 text-white`                               |
+| Error text       | `text-rose-500 text-xs mt-1`                                             |
+| Muted text       | `text-slate-400`                                                         |
+| Loading skeleton | `animate-pulse bg-slate-200 rounded`                                     |
 
 ---
 
