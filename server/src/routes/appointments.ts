@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { randomUUID } from 'crypto'
+import rateLimit from 'express-rate-limit'
 import db from '../db'
 import { config } from '../config'
 import { io } from '../index'
@@ -21,6 +22,79 @@ interface AppointmentRow {
   created_at: string
 }
 
+// Stricter limiter for booking attempts: 10 per 15 minutes per IP (C1)
+const bookingLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Too many booking attempts, please try again later' },
+})
+
+// Limiter for token lookups and cancellations: 20 per minute per IP (C1)
+const tokenLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 20,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later' },
+})
+
+/**
+ * Extract local date/time parts for a UTC instant in the configured timezone. (H3)
+ * Returns datePart "YYYY-MM-DD", timePart "HH:MM", localMinute 0–59, and day-of-week 0=Sun.
+ */
+function toTZParts(date: Date, tz: string) {
+  const fmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone: tz,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    weekday: 'long',
+    hour12: false,
+  })
+  const p: Record<string, string> = {}
+  for (const { type, value } of fmt.formatToParts(date)) p[type] = value
+
+  const datePart = `${p.year}-${p.month}-${p.day}`
+  // Some environments emit "24" instead of "00" for midnight with hour12:false
+  const rawHour = p.hour === '24' ? '00' : p.hour
+  const hour = rawHour.padStart(2, '0')
+  const minute = p.minute.padStart(2, '0')
+  const timePart = `${hour}:${minute}`
+
+  const weekdays: Record<string, number> = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+  }
+  return {
+    datePart,
+    timePart,
+    localMinute: parseInt(minute, 10),
+    dayOfWeek: weekdays[p.weekday] ?? -1,
+  }
+}
+
+/**
+ * Convert a stored "YYYY-MM-DDTHH:MM:00" local-time string (in tz) to the correct UTC Date. (H3)
+ * Avoids the server-local-timezone assumption of new Date(localStr).
+ */
+function localToUTC(localStr: string, tz: string): Date {
+  // Pretend the local string is UTC as a reference, then correct for the actual offset
+  const naive = new Date(localStr + 'Z')
+  const parts = toTZParts(naive, tz)
+  const displayedAsUTC = new Date(`${parts.datePart}T${parts.timePart}:00Z`)
+  const offsetMs = naive.getTime() - displayedAsUTC.getTime()
+  return new Date(naive.getTime() + offsetMs)
+}
+
 // GET /by-date?date=YYYY-MM-DD
 router.get('/by-date', (req: Request, res: Response) => {
   const { date } = req.query
@@ -29,27 +103,33 @@ router.get('/by-date', (req: Request, res: Response) => {
     return res.status(400).json({ error: '"date" must be a valid date in YYYY-MM-DD format' })
   }
 
+  // start_time is stored as normalised "YYYY-MM-DDTHH:MM:00" local strings, so substring(11,16) is safe
   const rows = db
-    .prepare(
-      'SELECT start_time FROM appointments WHERE start_time >= ? AND start_time < ? AND cancelled = 0'
-    )
+    .prepare('SELECT start_time FROM appointments WHERE start_time >= ? AND start_time < ? AND cancelled = 0')
     .all(`${date}T00:00:00`, `${date}T23:59:60`) as Pick<AppointmentRow, 'start_time'>[]
 
   return res.json({ slots: rows.map(r => r.start_time.substring(11, 16)) })
 })
 
 // POST /
-router.post('/', (req: Request, res: Response) => {
+router.post('/', bookingLimiter, (req: Request, res: Response) => {
   const { first_name, last_name, email, reason, start_time } = req.body as Record<string, unknown>
 
-  // Required fields
+  // Required fields: presence + type
   for (const field of ['first_name', 'last_name', 'email', 'start_time'] as const) {
     if (!req.body[field] || typeof req.body[field] !== 'string' || !(req.body[field] as string).trim()) {
       return res.status(400).json({ error: `"${field}" is required`, field })
     }
   }
 
-  if (typeof email !== 'string' || !EMAIL_RE.test(email)) {
+  // Length limits (H5)
+  if ((first_name as string).trim().length > 100) {
+    return res.status(400).json({ error: '"first_name" must be 100 characters or fewer', field: 'first_name' })
+  }
+  if ((last_name as string).trim().length > 100) {
+    return res.status(400).json({ error: '"last_name" must be 100 characters or fewer', field: 'last_name' })
+  }
+  if (typeof email !== 'string' || email.length > 254 || !EMAIL_RE.test(email)) {
     return res.status(400).json({ error: 'Invalid email address', field: 'email' })
   }
 
@@ -75,8 +155,9 @@ router.post('/', (req: Request, res: Response) => {
     return res.status(400).json({ error: '"start_time" must be in the future', field: 'start_time' })
   }
 
-  // Extract HH:MM for business hours check
-  const timePart = start_time.substring(11, 16) // "HH:MM"
+  // All business-rule checks use the local time in config.timezone (H3)
+  const { datePart, timePart, localMinute, dayOfWeek } = toTZParts(startDate, config.timezone)
+
   if (timePart < config.openTime || timePart >= config.closeTime) {
     return res.status(400).json({
       error: `Appointment must be between ${config.openTime} and ${config.closeTime}`,
@@ -90,11 +171,15 @@ router.post('/', (req: Request, res: Response) => {
     })
   }
 
-  // Date not blocked
-  const datePart = start_time.substring(0, 10) // "YYYY-MM-DD"
+  // Slot-alignment: time must land on a slot boundary (H4)
+  if (localMinute % config.slotDurationMins !== 0) {
+    return res.status(400).json({
+      error: `Appointment time must align to a ${config.slotDurationMins}-minute slot boundary`,
+      field: 'start_time',
+    })
+  }
 
-  // Weekend / non-work-day check
-  const dayOfWeek = new Date(datePart + 'T00:00:00').getDay()
+  // Day-of-week check uses tz-local day, not server-local day (H3)
   if (!config.workDays.includes(dayOfWeek)) {
     return res.status(400).json({
       error: 'Appointments are not available on this day of the week',
@@ -102,6 +187,7 @@ router.post('/', (req: Request, res: Response) => {
     })
   }
 
+  // Blocked date check uses tz-local date string (H3)
   const blocked = db.prepare('SELECT date FROM blocked_dates WHERE date = ?').get(datePart)
   if (blocked) {
     return res.status(400).json({
@@ -109,6 +195,9 @@ router.post('/', (req: Request, res: Response) => {
       field: 'start_time',
     })
   }
+
+  // Normalise to canonical "YYYY-MM-DDTHH:MM:00" in config.timezone before storing (H4)
+  const normalizedStartTime = `${datePart}T${timePart}:00`
 
   const cancellation_token = randomUUID()
 
@@ -122,7 +211,7 @@ router.post('/', (req: Request, res: Response) => {
       (last_name as string).trim(),
       (email as string).trim(),
       typeof reason === 'string' ? reason : null,
-      start_time,
+      normalizedStartTime,
     )
   } catch (err: unknown) {
     const sqliteErr = err as { code?: string }
@@ -132,14 +221,11 @@ router.post('/', (req: Request, res: Response) => {
     throw err
   }
 
-  // Emit real-time event to all connected clients
-  const date = start_time.substring(0, 10)
-  const time = start_time.substring(11, 16)
-  io.emit('slot:booked', { date, time })
+  io.emit('slot:booked', { date: datePart, time: timePart })
 
   return res.status(201).json({
     cancellation_token,
-    start_time,
+    start_time: normalizedStartTime,
     first_name: (first_name as string).trim(),
     last_name: (last_name as string).trim(),
     email: (email as string).trim(),
@@ -147,12 +233,17 @@ router.post('/', (req: Request, res: Response) => {
   })
 })
 
-// GET /:token
-router.get('/:token', (req: Request, res: Response) => {
+// GET /:token — returns only display fields; email/id/created_at are not exposed (C2)
+router.get('/:token', tokenLimiter, (req: Request, res: Response) => {
   const { token } = req.params
 
-  const appointment = db.prepare('SELECT * FROM appointments WHERE cancellation_token = ?').get(token) as
-    | AppointmentRow
+  const appointment = db
+    .prepare(
+      `SELECT cancellation_token, first_name, last_name, start_time, cancelled, reason
+       FROM appointments WHERE cancellation_token = ?`,
+    )
+    .get(token) as
+    | Pick<AppointmentRow, 'cancellation_token' | 'first_name' | 'last_name' | 'start_time' | 'cancelled' | 'reason'>
     | undefined
 
   if (!appointment) {
@@ -163,12 +254,15 @@ router.get('/:token', (req: Request, res: Response) => {
 })
 
 // DELETE /:token
-router.delete('/:token', (req: Request, res: Response) => {
+router.delete('/:token', tokenLimiter, (req: Request, res: Response) => {
   const { token } = req.params
 
-  const appointment = db.prepare('SELECT * FROM appointments WHERE cancellation_token = ?').get(token) as
-    | AppointmentRow
-    | undefined
+  const appointment = db
+    .prepare(
+      `SELECT cancellation_token, start_time, cancelled
+       FROM appointments WHERE cancellation_token = ?`,
+    )
+    .get(token) as Pick<AppointmentRow, 'cancellation_token' | 'start_time' | 'cancelled'> | undefined
 
   if (!appointment) {
     return res.status(404).json({ error: 'Appointment not found' })
@@ -178,7 +272,9 @@ router.delete('/:token', (req: Request, res: Response) => {
     return res.status(200).json({ message: 'Already cancelled' })
   }
 
-  const msUntilAppointment = new Date(appointment.start_time).getTime() - Date.now()
+  // Use timezone-aware UTC conversion so the deadline is correct regardless of server timezone (H3)
+  const appointmentUTC = localToUTC(appointment.start_time, config.timezone)
+  const msUntilAppointment = appointmentUTC.getTime() - Date.now()
   if (msUntilAppointment < config.cancelDeadlineHours * 3600 * 1000) {
     return res.status(422).json({
       error: `Cannot cancel within ${config.cancelDeadlineHours}h of appointment`,
@@ -187,7 +283,7 @@ router.delete('/:token', (req: Request, res: Response) => {
 
   db.prepare('UPDATE appointments SET cancelled = 1 WHERE cancellation_token = ?').run(token)
 
-  // Emit real-time event so other clients free up this slot immediately
+  // start_time is stored as normalised "YYYY-MM-DDTHH:MM:00", so substring is safe here
   const date = appointment.start_time.substring(0, 10)
   const time = appointment.start_time.substring(11, 16)
   io.emit('slot:freed', { date, time })

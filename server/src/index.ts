@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import './db' // triggers DB init + migrations
@@ -30,9 +31,18 @@ io.on('connection', socket => {
 app.use(cors({ origin: allowedOrigins, credentials: true }))
 app.use(express.json())
 
+// General rate limiter: 60 req/min/IP applied to all API routes
+const generalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 60,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later' },
+})
+
 app.use('/api/health', healthRouter)
-app.use('/api/config', configRouter)
-app.use('/api/blocked-dates', blockedDatesRouter)
-app.use('/api/appointments', appointmentsRouter)
+app.use('/api/config', generalLimiter, configRouter)
+app.use('/api/blocked-dates', generalLimiter, blockedDatesRouter)
+app.use('/api/appointments', generalLimiter, appointmentsRouter)
 
 httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`))
