@@ -9,7 +9,7 @@ const router = createRouter({
     { path: '/', component: SlotListView },
     { path: '/book', component: BookView },
     { path: '/cancel/:token?', component: CancelView },
-  ]
+  ],
 })
 
 export default router
