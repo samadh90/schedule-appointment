@@ -1,0 +1,27 @@
+{
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/build": true,
+        "**/.output": true,
+        "**/*.tsbuildinfo": true,
+        "server/data/*.sqlite": true,
+        "server/data/*.sqlite-shm": true,
+        "server/data/*.sqlite-wal": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/build": true,
+        "**/.output": true,
+        "**/*.tsbuildinfo": true,
+        "**/package-lock.json": true
+    },
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/build/**": true,
+        "**/.output/**": true,
+        "server/data/**": true
+    }
+}
