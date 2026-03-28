@@ -34,3 +34,7 @@ Thumbs.db
 *.ntvs*
 *.njsproj
 *.sln
+
+# Copilot CLI session files
+.claude/
+**/CLAUDE.md
