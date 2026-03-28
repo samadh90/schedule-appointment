@@ -75,14 +75,19 @@ function formatDateTime(iso: string): string {
 
 <template>
   <div>
-    <h1 class="text-2xl font-semibold text-slate-800 mb-6">{{ t('cancel.title') }}</h1>
+    <h1 class="text-2xl font-bold text-slate-900 mb-6">{{ t('cancel.title') }}</h1>
 
     <!-- Success -->
     <div
       v-if="cancelResult === 'success'"
       class="rounded-xl shadow-sm border border-slate-200 bg-white p-6 text-center"
     >
-      <div class="text-emerald-600 text-4xl mb-4">✓</div>
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-50 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
       <h2 class="text-xl font-semibold text-slate-800 mb-2">{{ t('cancel.successTitle') }}</h2>
       <p class="text-sm text-slate-500 mb-6">{{ t('cancel.successMsg') }}</p>
       <router-link
@@ -123,25 +128,26 @@ function formatDateTime(iso: string): string {
 
       <!-- Appointment summary -->
       <div v-if="appointment" class="mt-6 border-t border-slate-200 pt-6">
-        <h3 class="text-lg font-medium text-slate-800 mb-3">{{ t('cancel.detailsTitle') }}</h3>
+        <h3 class="text-base font-semibold text-slate-800 mb-4">{{ t('cancel.detailsTitle') }}</h3>
 
         <div v-if="appointment.cancelled" class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
           <p class="text-sm text-slate-500">{{ t('cancel.alreadyCancelled') }}</p>
         </div>
 
-        <div class="space-y-2 text-sm text-slate-700 mb-6">
-          <p>
-            <span class="text-slate-400">{{ t('cancel.name') }}:</span> {{ appointment.first_name }}
-            {{ appointment.last_name }}
-          </p>
-          <p>
-            <span class="text-slate-400">{{ t('cancel.dateTime') }}:</span>
-            {{ formatDateTime(appointment.start_time) }}
-          </p>
-          <p v-if="appointment.reason">
-            <span class="text-slate-400">{{ t('cancel.reason') }}:</span> {{ appointment.reason }}
-          </p>
-        </div>
+        <dl class="divide-y divide-slate-100 rounded-lg border border-slate-200 overflow-hidden mb-6">
+          <div class="flex px-4 py-3 gap-4 bg-white">
+            <dt class="text-xs font-medium text-slate-400 uppercase tracking-wide w-24 shrink-0 pt-0.5">{{ t('cancel.name') }}</dt>
+            <dd class="text-sm text-slate-800 font-medium">{{ appointment.first_name }} {{ appointment.last_name }}</dd>
+          </div>
+          <div class="flex px-4 py-3 gap-4 bg-white">
+            <dt class="text-xs font-medium text-slate-400 uppercase tracking-wide w-24 shrink-0 pt-0.5">{{ t('cancel.dateTime') }}</dt>
+            <dd class="text-sm text-slate-800 font-medium">{{ formatDateTime(appointment.start_time) }}</dd>
+          </div>
+          <div v-if="appointment.reason" class="flex px-4 py-3 gap-4 bg-white">
+            <dt class="text-xs font-medium text-slate-400 uppercase tracking-wide w-24 shrink-0 pt-0.5">{{ t('cancel.reason') }}</dt>
+            <dd class="text-sm text-slate-800">{{ appointment.reason }}</dd>
+          </div>
+        </dl>
 
         <div v-if="cancelError" class="bg-rose-50 border border-rose-200 text-rose-500 text-sm rounded-lg p-4 mb-4">
           {{ cancelError }}

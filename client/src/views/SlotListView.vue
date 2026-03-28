@@ -73,7 +73,8 @@ function onSlotSelect(time: string) {
 
 <template>
   <div>
-    <h1 class="text-2xl font-semibold text-slate-800 mb-6">{{ t('slot.title') }}</h1>
+    <h1 class="text-2xl font-bold text-slate-900 mb-1">{{ t('slot.title') }}</h1>
+    <p class="text-sm text-slate-500 mb-6">{{ t('slot.subtitle') }}</p>
 
     <div class="rounded-xl shadow-sm border border-slate-200 bg-white p-6">
       <DayNavigator

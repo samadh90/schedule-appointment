@@ -105,7 +105,12 @@ function formatDateTime(iso: string): string {
   <div>
     <!-- Success screen -->
     <div v-if="success" class="rounded-xl shadow-sm border border-slate-200 bg-white p-6 text-center">
-      <div class="text-emerald-600 text-4xl mb-4">✓</div>
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-50 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
       <h2 class="text-xl font-semibold text-slate-800 mb-2">{{ t('book.successTitle') }}</h2>
       <p class="text-sm text-slate-700 mb-6">{{ formatDateTime(success.start_time) }}</p>
 
@@ -116,8 +121,15 @@ function formatDateTime(iso: string): string {
 
       <button
         @click="copyToken"
-        class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+        class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
       >
+        <svg v-if="!copied" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
         {{ copied ? t('book.copied') : t('book.copyToken') }}
       </button>
 
@@ -131,8 +143,16 @@ function formatDateTime(iso: string): string {
     <!-- Booking form -->
     <div v-else>
       <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-slate-800">{{ t('book.title') }}</h1>
-        <p class="text-sm text-slate-500 mt-1">{{ date }} {{ t('book.subtitle') }} {{ time }}</p>
+        <h1 class="text-2xl font-bold text-slate-900">{{ t('book.title') }}</h1>
+        <div class="mt-2 inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span class="text-sm font-medium text-emerald-700">{{ date }} {{ t('book.subtitle') }} {{ time }}</span>
+        </div>
       </div>
 
       <div v-if="serverError" class="bg-rose-50 border border-rose-200 text-rose-500 text-sm rounded-lg p-4 mb-4">
@@ -141,28 +161,30 @@ function formatDateTime(iso: string): string {
 
       <div class="rounded-xl shadow-sm border border-slate-200 bg-white p-6">
         <form @submit.prevent="submit" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('book.firstName') }}</label>
-            <input
-              v-model="form.first_name"
-              @blur="validateField('first_name')"
-              type="text"
-              class="w-full rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 px-3 py-2 text-sm outline-none transition-all"
-            />
-            <p v-if="errors.first_name" class="text-rose-500 text-xs mt-1">
-              {{ errors.first_name }}
-            </p>
-          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('book.firstName') }}</label>
+              <input
+                v-model="form.first_name"
+                @blur="validateField('first_name')"
+                type="text"
+                class="w-full rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 px-3 py-2 text-sm outline-none transition-all"
+              />
+              <p v-if="errors.first_name" class="text-rose-500 text-xs mt-1">
+                {{ errors.first_name }}
+              </p>
+            </div>
 
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('book.lastName') }}</label>
-            <input
-              v-model="form.last_name"
-              @blur="validateField('last_name')"
-              type="text"
-              class="w-full rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 px-3 py-2 text-sm outline-none transition-all"
-            />
-            <p v-if="errors.last_name" class="text-rose-500 text-xs mt-1">{{ errors.last_name }}</p>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('book.lastName') }}</label>
+              <input
+                v-model="form.last_name"
+                @blur="validateField('last_name')"
+                type="text"
+                class="w-full rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 px-3 py-2 text-sm outline-none transition-all"
+              />
+              <p v-if="errors.last_name" class="text-rose-500 text-xs mt-1">{{ errors.last_name }}</p>
+            </div>
           </div>
 
           <div>

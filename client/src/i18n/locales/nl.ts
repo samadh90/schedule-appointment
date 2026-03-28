@@ -1,6 +1,6 @@
 export default {
   nav: {
-    title: '📅 Afspraak boeken',
+    title: 'Afspraak boeken',
     schedule: 'Kalender',
     cancel: 'Annuleren',
   },
@@ -16,6 +16,7 @@ export default {
     holiday: 'Feestdag / Geblokkeerd',
     pickDate: 'Klik om een datum te kiezen',
     loading: 'Laden…',
+    subtitle: 'Kies een datum en tijdstip voor uw afspraak.',
   },
   book: {
     title: 'Afspraak boeken',
@@ -33,8 +34,8 @@ export default {
     successTitle: 'Afspraak geboekt!',
     successToken: 'Uw annuleringstoken (bewaar dit!)',
     copyToken: 'Token kopiëren',
-    copied: '✓ Gekopieerd!',
-    backToSchedule: '← Terug naar kalender',
+    copied: 'Gekopieerd!',
+    backToSchedule: 'Terug naar kalender',
     err409: 'Dit tijdslot is zojuist ingenomen. Kies een ander tijdstip.',
     errGeneric: 'Boeking mislukt. Probeer opnieuw.',
     errNetwork: 'Netwerkfout. Probeer opnieuw.',

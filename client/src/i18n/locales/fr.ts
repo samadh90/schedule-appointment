@@ -1,6 +1,6 @@
 export default {
   nav: {
-    title: '📅 Prendre un rendez-vous',
+    title: 'Prendre un rendez-vous',
     schedule: 'Calendrier',
     cancel: 'Annuler',
   },
@@ -16,6 +16,7 @@ export default {
     holiday: 'Jour férié / Bloqué',
     pickDate: 'Cliquez pour choisir une date',
     loading: 'Chargement…',
+    subtitle: 'Choisissez une date et un créneau pour votre rendez-vous.',
   },
   book: {
     title: 'Prendre un rendez-vous',
@@ -33,8 +34,8 @@ export default {
     successTitle: 'Rendez-vous confirmé\u00a0!',
     successToken: "Votre jeton d'annulation (conservez-le\u00a0!)",
     copyToken: 'Copier le jeton',
-    copied: '✓ Copié\u00a0!',
-    backToSchedule: '← Retour au calendrier',
+    copied: 'Copié\u00a0!',
+    backToSchedule: 'Retour au calendrier',
     err409: "Ce créneau vient d'être pris. Veuillez choisir un autre horaire.",
     errGeneric: 'La réservation a échoué. Veuillez réessayer.',
     errNetwork: 'Erreur réseau. Veuillez réessayer.',

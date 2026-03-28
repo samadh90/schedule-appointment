@@ -1,6 +1,6 @@
 export default {
   nav: {
-    title: '📅 Book an Appointment',
+    title: 'Book an Appointment',
     schedule: 'Schedule',
     cancel: 'Cancel',
   },
@@ -16,6 +16,7 @@ export default {
     holiday: 'Holiday / Blocked',
     pickDate: 'Click to jump to a date',
     loading: 'Loading slots…',
+    subtitle: 'Select a date and time to book your appointment.',
   },
   book: {
     title: 'Book Appointment',
@@ -33,8 +34,8 @@ export default {
     successTitle: 'Appointment Booked!',
     successToken: 'Your cancellation token (save this!)',
     copyToken: 'Copy Token',
-    copied: '✓ Copied!',
-    backToSchedule: '← Back to schedule',
+    copied: 'Copied!',
+    backToSchedule: 'Back to schedule',
     err409: 'This slot was just taken. Please go back and choose another time.',
     errGeneric: 'Booking failed. Please try again.',
     errNetwork: 'Network error. Please try again.',

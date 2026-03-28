@@ -84,18 +84,19 @@ function onPickerChange(e: Event) {
       :disabled="isPrevDisabled"
       class="flex items-center justify-center min-w-10 h-10 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 font-medium text-sm"
     >
-      ←
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
 
     <div class="text-center flex-1 relative">
       <button
         v-if="!showPicker"
         @click="showPicker = true"
-        class="text-sm font-medium hover:text-emerald-600 transition-colors"
+        class="text-base font-semibold hover:text-emerald-600 transition-colors"
         :class="isUnavailable ? 'text-rose-500' : 'text-slate-800'"
         :title="t('slot.pickDate')"
       >
-        {{ formatDate(modelValue) }} <span class="text-slate-400 text-xs">▾</span>
+        {{ formatDate(modelValue) }}
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 inline-block ml-1 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
 
       <input
@@ -121,7 +122,7 @@ function onPickerChange(e: Event) {
       @click="step(1)"
       class="flex items-center justify-center min-w-10 h-10 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-slate-700 font-medium text-sm"
     >
-      →
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
   </div>
 </template>
