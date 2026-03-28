@@ -3,6 +3,7 @@ import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
+import path from 'path'
 import './db' // triggers DB init + migrations
 
 import healthRouter from './routes/health'
@@ -44,5 +45,14 @@ app.use('/api/health', healthRouter)
 app.use('/api/config', generalLimiter, configRouter)
 app.use('/api/blocked-dates', generalLimiter, blockedDatesRouter)
 app.use('/api/appointments', generalLimiter, appointmentsRouter)
+
+// Production: serve the compiled Vue SPA and handle client-side routing
+if (process.env.NODE_ENV === 'production') {
+  const clientDist = path.resolve(__dirname, '..', '..', 'client', 'dist')
+  app.use(express.static(clientDist))
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(clientDist, 'index.html'))
+  })
+}
 
 httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`))
