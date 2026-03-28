@@ -21,11 +21,11 @@ Slots are **never pre-inserted** in the database. The client generates the full 
 1. `GET /api/appointments/by-date?date=YYYY-MM-DD` → already-booked `HH:MM` strings
 2. `GET /api/blocked-dates?from=…&to=…` → blocked date range
 
-| Slot status | Condition |
-| ----------- | --------- |
+| Slot status | Condition                                          |
+| ----------- | -------------------------------------------------- |
 | `blocked`   | Past time, or lunch break, or blocked/non-work day |
-| `booked`    | In the `bookedSlots` cache from the store |
-| `free`      | Everything else |
+| `booked`    | In the `bookedSlots` cache from the store          |
+| `free`      | Everything else                                    |
 
 The server **re-validates all rules on every write** — client-side generation is display-only.
 
@@ -48,26 +48,26 @@ After every successful write the server emits to **all** connected clients:
 
 ### Booking
 
-| Rule | Detail |
-| ---- | ------ |
-| Required fields | First name, last name, valid email, slot selection |
-| Optional field | Reason (free text, max 500 chars) |
-| Past slots | Client skips past days; server rejects any `start_time` in the past |
-| Business hours | Server validates time is within `openTime`–`closeTime`, outside lunch break |
-| Work days | Server rejects bookings on days not in `workDays` (default Mon–Fri) |
-| Blocked day | Server rejects bookings on any date in `blocked_dates` |
-| Double-booking | Booking is atomic; concurrent requests for the same slot return 409 |
+| Rule                | Detail                                                                        |
+| ------------------- | ----------------------------------------------------------------------------- |
+| Required fields     | First name, last name, valid email, slot selection                            |
+| Optional field      | Reason (free text, max 500 chars)                                             |
+| Past slots          | Client skips past days; server rejects any `start_time` in the past           |
+| Business hours      | Server validates time is within `openTime`–`closeTime`, outside lunch break   |
+| Work days           | Server rejects bookings on days not in `workDays` (default Mon–Fri)           |
+| Blocked day         | Server rejects bookings on any date in `blocked_dates`                        |
+| Double-booking      | Booking is atomic; concurrent requests for the same slot return 409           |
 | Cancelled rebooking | A cancelled slot can be rebooked (partial unique index `WHERE cancelled = 0`) |
-| Cancellation token | UUID v4 generated at booking time and returned to the user |
+| Cancellation token  | UUID v4 generated at booking time and returned to the user                    |
 
 ### Cancellation
 
-| Rule | Detail |
-| ---- | ------ |
-| Token required | The UUID issued at booking must be provided |
-| Deadline | Cannot cancel within `cancelDeadlineHours` of the slot (default 24 h) → 422 |
-| Idempotency | Cancelling an already-cancelled appointment returns 200 |
-| Real-time | Success emits `slot:freed` — the slot turns green everywhere instantly |
+| Rule           | Detail                                                                      |
+| -------------- | --------------------------------------------------------------------------- |
+| Token required | The UUID issued at booking must be provided                                 |
+| Deadline       | Cannot cancel within `cancelDeadlineHours` of the slot (default 24 h) → 422 |
+| Idempotency    | Cancelling an already-cancelled appointment returns 200                     |
+| Real-time      | Success emits `slot:freed` — the slot turns green everywhere instantly      |
 
 ---
 

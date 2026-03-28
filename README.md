@@ -42,16 +42,15 @@ Open **http://localhost:5173**
 
 ## Documentation
 
-| Topic | File |
-| ----- | ---- |
-| Environment variables & business hours config | [docs/configuration.md](docs/configuration.md) |
-| API endpoints, request/response shapes, rate limits | [docs/api.md](docs/api.md) |
-| How slots work, Socket.IO events, business rules | [docs/architecture.md](docs/architecture.md) |
-| Database schema and migrations | [docs/database.md](docs/database.md) |
-| Production build and deployment | [docs/deployment.md](docs/deployment.md) |
-| Tailwind design tokens and component shapes | [docs/design-system.md](docs/design-system.md) |
+| Topic                                               | File                                           |
+| --------------------------------------------------- | ---------------------------------------------- |
+| Environment variables & business hours config       | [docs/configuration.md](docs/configuration.md) |
+| API endpoints, request/response shapes, rate limits | [docs/api.md](docs/api.md)                     |
+| How slots work, Socket.IO events, business rules    | [docs/architecture.md](docs/architecture.md)   |
+| Database schema and migrations                      | [docs/database.md](docs/database.md)           |
+| Production build and deployment                     | [docs/deployment.md](docs/deployment.md)       |
+| Tailwind design tokens and component shapes         | [docs/design-system.md](docs/design-system.md) |
 
 ## License
 
 MIT
-

@@ -35,12 +35,12 @@ CREATE TABLE blocked_dates (
 
 Migrations run automatically at server start via `server/src/migrations/runner.ts`. They are append-only numbered SQL files — never edit an already-applied migration.
 
-| File                            | Description                                                                                       |
-| ------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `001_create_appointments.sql`   | `appointments` table                                                                              |
-| `002_create_blocked_dates.sql`  | `blocked_dates` table                                                                             |
-| `003_seed_holidays.sql`         | Belgian public holidays 2024–2026                                                                 |
-| `004_fix_start_time_unique.sql` | Replaces table-level UNIQUE with partial index (allows rebooking cancelled slots)                 |
+| File                            | Description                                                                       |
+| ------------------------------- | --------------------------------------------------------------------------------- |
+| `001_create_appointments.sql`   | `appointments` table                                                              |
+| `002_create_blocked_dates.sql`  | `blocked_dates` table                                                             |
+| `003_seed_holidays.sql`         | Belgian public holidays 2024–2026                                                 |
+| `004_fix_start_time_unique.sql` | Replaces table-level UNIQUE with partial index (allows rebooking cancelled slots) |
 
 To add a migration: create `server/src/migrations/NNN_snake_case_name.sql`. The filename must match `/^\d{3}_[a-z0-9_]+\.sql$/`.
 

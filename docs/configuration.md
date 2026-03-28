@@ -2,20 +2,20 @@
 
 ## Server environment variables
 
-| Variable          | Default                 | Description                                          |
-| ----------------- | ----------------------- | ---------------------------------------------------- |
-| `PORT`            | `3000`                  | HTTP listen port                                     |
-| `NODE_ENV`        | —                       | Set to `production` to enable SPA serving            |
-| `TENANT_CONFIG`   | —                       | JSON string — overrides business hours config        |
-| `ALLOWED_ORIGINS` | `http://localhost:5173` | Comma-separated list of allowed frontend origins     |
+| Variable          | Default                 | Description                                      |
+| ----------------- | ----------------------- | ------------------------------------------------ |
+| `PORT`            | `3000`                  | HTTP listen port                                 |
+| `NODE_ENV`        | —                       | Set to `production` to enable SPA serving        |
+| `TENANT_CONFIG`   | —                       | JSON string — overrides business hours config    |
+| `ALLOWED_ORIGINS` | `http://localhost:5173` | Comma-separated list of allowed frontend origins |
 
 Copy `server/.env.example` to `server/.env` to get started.
 
 ## Client environment variables
 
-| Variable         | Default | Description                                       |
-| ---------------- | ------- | ------------------------------------------------- |
-| `VITE_BASE_URL`  | `/`     | Base path when deploying under a sub-path         |
+| Variable        | Default | Description                               |
+| --------------- | ------- | ----------------------------------------- |
+| `VITE_BASE_URL` | `/`     | Base path when deploying under a sub-path |
 
 Set this at build time (not at runtime). See [deployment.md](deployment.md).
 

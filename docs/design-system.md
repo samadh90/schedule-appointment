@@ -6,20 +6,20 @@
 
 ## Colour palette
 
-| Role           | Tailwind class                                   | Usage                         |
-| -------------- | ------------------------------------------------ | ----------------------------- |
-| App background | `bg-slate-50`                                    | Page background               |
-| Surface        | `bg-white`                                       | Cards, panels                 |
-| Border         | `border-slate-200`                               | Subtle dividers               |
-| Text primary   | `text-slate-800` / `text-slate-900`              | Main content / headings       |
-| Text muted     | `text-slate-400`                                 | Hints, labels                 |
-| Slot — free    | `bg-emerald-600 text-white hover:bg-emerald-700 transition-colors` | Bookable |
-| Slot — booked  | `bg-rose-400 text-white opacity-70 cursor-not-allowed` | Taken, disabled      |
-| Slot — blocked | `bg-slate-300 text-slate-500 cursor-not-allowed` | Non-working / lunch / holiday |
-| Primary button | `bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg` | Primary action |
-| Danger button  | `bg-rose-400 hover:bg-rose-500 text-white rounded-lg` | Cancel / destructive   |
-| Error text     | `text-rose-500 text-xs mt-1`                     | Field-level validation error  |
-| Loading        | `animate-pulse bg-slate-200 rounded`             | Skeleton loaders              |
+| Role           | Tailwind class                                                     | Usage                         |
+| -------------- | ------------------------------------------------------------------ | ----------------------------- |
+| App background | `bg-slate-50`                                                      | Page background               |
+| Surface        | `bg-white`                                                         | Cards, panels                 |
+| Border         | `border-slate-200`                                                 | Subtle dividers               |
+| Text primary   | `text-slate-800` / `text-slate-900`                                | Main content / headings       |
+| Text muted     | `text-slate-400`                                                   | Hints, labels                 |
+| Slot — free    | `bg-emerald-600 text-white hover:bg-emerald-700 transition-colors` | Bookable                      |
+| Slot — booked  | `bg-rose-400 text-white opacity-70 cursor-not-allowed`             | Taken, disabled               |
+| Slot — blocked | `bg-slate-300 text-slate-500 cursor-not-allowed`                   | Non-working / lunch / holiday |
+| Primary button | `bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg`        | Primary action                |
+| Danger button  | `bg-rose-400 hover:bg-rose-500 text-white rounded-lg`              | Cancel / destructive          |
+| Error text     | `text-rose-500 text-xs mt-1`                                       | Field-level validation error  |
+| Loading        | `animate-pulse bg-slate-200 rounded`                               | Skeleton loaders              |
 
 ## Component shapes
 

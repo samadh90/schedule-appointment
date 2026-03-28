@@ -4,6 +4,18 @@ description: 'Use when writing commit messages, staging changes, or asked to com
 
 # Commit Conventions
 
+## Pre-commit checklist
+
+Run these from the repo root **before every commit** — in this order:
+
+```bash
+npm run format          # auto-fix formatting across all files
+cd client && npx vue-tsc --noEmit && cd ..
+cd server && npx tsc --noEmit && cd ..
+```
+
+All three must pass with zero errors before staging anything.
+
 ## Format
 
 ```

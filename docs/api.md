@@ -24,9 +24,9 @@ All routes are prefixed with `/api/`. The server accepts and returns JSON.
 {
   "start_time": "2026-04-01T09:00:00",
   "first_name": "Jane",
-  "last_name":  "Doe",
-  "email":      "jane@example.com",
-  "reason":     "Annual checkup"
+  "last_name": "Doe",
+  "email": "jane@example.com",
+  "reason": "Annual checkup"
 }
 ```
 
@@ -37,28 +37,28 @@ All routes are prefixed with `/api/`. The server accepts and returns JSON.
 ```json
 {
   "cancellation_token": "a1b2c3d4-e5f6-...",
-  "start_time":  "2026-04-01T09:00:00",
-  "first_name":  "Jane",
-  "last_name":   "Doe",
-  "email":       "jane@example.com",
-  "reason":      "Annual checkup"
+  "start_time": "2026-04-01T09:00:00",
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "email": "jane@example.com",
+  "reason": "Annual checkup"
 }
 ```
 
 ### Validation rules (server-enforced)
 
-| Rule | Detail |
-| ---- | ------ |
-| Required fields | `first_name`, `last_name`, `email`, `start_time` |
-| Length limits | Names ≤ 100 chars, email ≤ 254 chars, reason ≤ 500 chars |
-| Email format | RFC 5322 pattern |
-| Future slot | `start_time` must be in the future |
-| Work day | Day of week must be in `workDays` |
-| Business hours | Time must fall within `openTime`–`closeTime` |
-| Lunch break | Time must not fall within `lunchStart`–`lunchEnd` |
-| Slot alignment | Minute component must satisfy `minute % slotDurationMins === 0` |
-| Blocked date | Date must not be in `blocked_dates` |
-| No double-booking | Only one active booking per slot (409 on conflict) |
+| Rule              | Detail                                                          |
+| ----------------- | --------------------------------------------------------------- |
+| Required fields   | `first_name`, `last_name`, `email`, `start_time`                |
+| Length limits     | Names ≤ 100 chars, email ≤ 254 chars, reason ≤ 500 chars        |
+| Email format      | RFC 5322 pattern                                                |
+| Future slot       | `start_time` must be in the future                              |
+| Work day          | Day of week must be in `workDays`                               |
+| Business hours    | Time must fall within `openTime`–`closeTime`                    |
+| Lunch break       | Time must not fall within `lunchStart`–`lunchEnd`               |
+| Slot alignment    | Minute component must satisfy `minute % slotDurationMins === 0` |
+| Blocked date      | Date must not be in `blocked_dates`                             |
+| No double-booking | Only one active booking per slot (409 on conflict)              |
 
 ---
 
@@ -71,11 +71,11 @@ Returns appointment details. `id`, `email`, and `created_at` are intentionally o
 ```json
 {
   "cancellation_token": "a1b2c3d4-e5f6-...",
-  "start_time":  "2026-04-01T09:00:00",
-  "first_name":  "Jane",
-  "last_name":   "Doe",
-  "reason":      "Annual checkup",
-  "cancelled":   0
+  "start_time": "2026-04-01T09:00:00",
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "reason": "Annual checkup",
+  "cancelled": 0
 }
 ```
 
@@ -91,12 +91,12 @@ Cannot cancel within `cancelDeadlineHours` of the slot start time → 422.
 
 ## Error responses
 
-| Status | Meaning                                                    |
-| ------ | ---------------------------------------------------------- |
-| 400    | Validation failure (missing field, bad email, past slot…)  |
-| 404    | Token not found                                            |
-| 409    | Slot already booked by a concurrent request                |
-| 422    | Business rule violation (e.g. within cancellation deadline)|
+| Status | Meaning                                                     |
+| ------ | ----------------------------------------------------------- |
+| 400    | Validation failure (missing field, bad email, past slot…)   |
+| 404    | Token not found                                             |
+| 409    | Slot already booked by a concurrent request                 |
+| 422    | Business rule violation (e.g. within cancellation deadline) |
 
 Error shape: `{ "error": "human-readable message", "field": "fieldName" }`  
 `field` is present only for field-level validation errors.
@@ -105,8 +105,8 @@ Error shape: `{ "error": "human-readable message", "field": "fieldName" }`
 
 ## Rate limiting
 
-| Scope | Limit |
-| ----- | ----- |
-| General | 60 requests / min / IP |
-| `POST /api/appointments` | 10 requests / 15 min / IP |
-| Token operations (GET/DELETE `/:token`) | 20 requests / min / IP |
+| Scope                                   | Limit                     |
+| --------------------------------------- | ------------------------- |
+| General                                 | 60 requests / min / IP    |
+| `POST /api/appointments`                | 10 requests / 15 min / IP |
+| Token operations (GET/DELETE `/:token`) | 20 requests / min / IP    |
