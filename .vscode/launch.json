@@ -1,0 +1,56 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // ── Server ────────────────────────────────────────────────────────────────
+    {
+      "name": "Server",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/server",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+
+    // ── Client — localhost only ───────────────────────────────────────────────
+    {
+      "name": "Client",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/client",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+
+    // ── Client — exposed on LAN (--host) ─────────────────────────────────────
+    {
+      "name": "Client (--host)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--host"],
+      "cwd": "${workspaceFolder}/client",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    }
+  ],
+
+  "compounds": [
+    // ── Both apps, localhost only ─────────────────────────────────────────────
+    {
+      "name": "Dev",
+      "configurations": ["Server", "Client"],
+      "stopAll": true
+    },
+
+    // ── Both apps, client exposed on LAN ─────────────────────────────────────
+    {
+      "name": "Dev (--host)",
+      "configurations": ["Server", "Client (--host)"],
+      "stopAll": true
+    }
+  ]
+}
