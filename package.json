@@ -5,12 +5,15 @@
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "build": "npm run build --prefix client && npm run build --prefix server",
-    "start": "npm run start --prefix server"
+    "start": "npm run start --prefix server",
+    "format": "prettier --write \"**/*.{ts,vue,js,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,vue,js,json,css,md}\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "prettier": "^3.8.1"
   }
 }

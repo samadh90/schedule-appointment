@@ -1,0 +1,7 @@
+node_modules
+dist
+build
+.output
+server/data
+*.sqlite
+package-lock.json
