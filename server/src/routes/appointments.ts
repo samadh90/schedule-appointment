@@ -30,8 +30,10 @@ router.get('/by-date', (req: Request, res: Response) => {
   }
 
   const rows = db
-    .prepare('SELECT start_time FROM appointments WHERE start_time LIKE ? AND cancelled = 0')
-    .all(`${date}%`) as Pick<AppointmentRow, 'start_time'>[]
+    .prepare(
+      'SELECT start_time FROM appointments WHERE start_time >= ? AND start_time < ? AND cancelled = 0'
+    )
+    .all(`${date}T00:00:00`, `${date}T23:59:60`) as Pick<AppointmentRow, 'start_time'>[]
 
   return res.json({ slots: rows.map(r => r.start_time.substring(11, 16)) })
 })

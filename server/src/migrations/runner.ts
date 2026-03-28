@@ -11,7 +11,7 @@ export function runMigrations(db: Database.Database): void {
   const migrationsDir = path.join(__dirname)
   const files = fs
     .readdirSync(migrationsDir)
-    .filter(f => f.endsWith('.sql'))
+    .filter(f => /^\d{3}_[a-z0-9_]+\.sql$/.test(f))
     .sort()
 
   for (const file of files) {

@@ -13,8 +13,13 @@ const app = express()
 const httpServer = createServer(app)
 const PORT = process.env.PORT || 3000
 
+// Restrict to explicit origins; ALLOWED_ORIGINS is comma-separated in production
+const allowedOrigins: string[] = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : ['http://localhost:5173']
+
 export const io = new Server(httpServer, {
-  cors: { origin: '*' },
+  cors: { origin: allowedOrigins, credentials: true },
 })
 
 io.on('connection', socket => {
@@ -22,7 +27,7 @@ io.on('connection', socket => {
   socket.on('disconnect', () => console.log(`[socket] client disconnected: ${socket.id}`))
 })
 
-app.use(cors())
+app.use(cors({ origin: allowedOrigins, credentials: true }))
 app.use(express.json())
 
 app.use('/api/health', healthRouter)
