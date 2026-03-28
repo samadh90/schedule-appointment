@@ -36,5 +36,7 @@ Thumbs.db
 *.sln
 
 # Claude Code CLI — local settings only (CLAUDE.md files are committed)
-.claude/
+.claude/settings.local.json
 
+# Other
+ROADMAP.md
