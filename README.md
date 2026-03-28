@@ -73,11 +73,11 @@ Defined in `server/src/config.ts` (per-tenant overridable via `TENANT_CONFIG`):
 {
   timezone: "Europe/Brussels",    // IANA timezone
   openTime: "09:00",
-  closeTime: "17:00",
+  closeTime: "18:00",
   lunchStart: "12:00",
   lunchEnd: "13:00",
-  slotDuration: 30,               // minutes
-  cancelDeadlineHours: 2,
+  slotDurationMins: 30,           // minutes
+  cancelDeadlineHours: 24,
   workDays: [1, 2, 3, 4, 5],     // 0=Sun … 6=Sat; default Mon–Fri
 }
 ```
@@ -195,10 +195,10 @@ cd ../server && npm install
 # server/.env  (copy from server/.env.example)
 PORT=3000
 # TENANT_CONFIG='{"openTime":"08:00","closeTime":"18:00"}'
-
-# client/.env  (copy from client/.env.example)
-VITE_API_BASE_URL=http://localhost:3000
+# ALLOWED_ORIGINS=http://localhost:5173   # comma-separated; default is localhost:5173
 ```
+
+> The Vite dev server proxy hardcodes `localhost:3000` as the backend target. To change it, update `server.proxy` in `client/vite.config.ts`.
 
 ### 3. Run in development
 
@@ -319,16 +319,22 @@ The server reads a `TENANT_CONFIG` environment variable (JSON string) that deep-
 TENANT_CONFIG='{"openTime":"08:00","closeTime":"18:00","workDays":[1,2,3,4,5,6]}' npm start
 ```
 
+Set `ALLOWED_ORIGINS` to restrict which frontend origins may connect (CORS + Socket.IO):
+
+```bash
+ALLOWED_ORIGINS=https://yoursite.com,https://www.yoursite.com npm start
+```
+
 Available overrides:
 
 | Key                   | Type       | Default             | Description                          |
 | --------------------- | ---------- | ------------------- | ------------------------------------ |
 | `openTime`            | `"HH:MM"`  | `"09:00"`           | First bookable slot of the day       |
-| `closeTime`           | `"HH:MM"`  | `"17:00"`           | Slots must start before this time    |
+| `closeTime`           | `"HH:MM"`  | `"18:00"`           | Slots must start before this time    |
 | `lunchStart`          | `"HH:MM"`  | `"12:00"`           | Start of lunch break                 |
 | `lunchEnd`            | `"HH:MM"`  | `"13:00"`           | End of lunch break                   |
-| `slotDuration`        | `number`   | `30`                | Minutes per slot                     |
-| `cancelDeadlineHours` | `number`   | `2`                 | Cannot cancel within N hours of slot |
+| `slotDurationMins`    | `number`   | `30`                | Minutes per slot                     |
+| `cancelDeadlineHours` | `number`   | `24`                | Cannot cancel within N hours of slot |
 | `workDays`            | `number[]` | `[1,2,3,4,5]`       | Days of week (0=Sun … 6=Sat)         |
 | `timezone`            | `string`   | `"Europe/Brussels"` | IANA timezone (informational)        |
 
