@@ -9,11 +9,14 @@ description: 'Use when writing commit messages, staging changes, or asked to com
 ```
 <type>(<scope>): <short description>
 
-<body — required when the subject alone doesn't fully explain the change>
+- <what changed and why — one bullet per distinct change>
+- <second bullet if needed>
 ```
 
 - Subject line: imperative mood, lowercase, no period at the end, max 72 chars
-- Body: **required** when the commit covers multiple files, a non-obvious fix, or a behaviour change — explain _what_ changed and _why_, not _how_; wrap at 72 chars
+- Body: **required** when the commit covers multiple files, a non-obvious fix, or a behaviour change
+  - Use **bullet points** (`- `), one per distinct change — never a raw prose paragraph
+  - Each bullet explains _what_ changed and _why_, not _how_; keep each line ≤ 72 chars
 - Omit body only when the subject line is fully self-explanatory (e.g. `style: run Prettier`)
 - **Never add `Co-authored-by` lines** — ever
 
@@ -66,13 +69,23 @@ docs: add commits.instructions.md
 
 ```
 feat(server): add GET /api/blocked-dates with date range validation
+
+- validates YYYY-MM-DD format and rejects dates in the past
+- returns 400 with a structured error object on invalid input
+```
+
+```
 fix(client): prevent past-day selection in DayNavigator on DST boundary
+
+- use new Date(y, m-1, d) instead of new Date('YYYY-MM-DD') to avoid
+  UTC midnight shift on the last Sunday of March in Belgium
+```
+
+```
 chore(config): configure Tailwind CSS content paths
 docs: update ROADMAP statuses after phase 2 completion
 refactor(server): extract slot validation into validateSlot helper
 style: run Prettier across all ts, vue, and json files
-feat(db): add migration 003 to seed Belgian public holidays
-fix(security): tighten CORS to use ALLOWED_ORIGINS env var
 ```
 
 ## Forbidden
