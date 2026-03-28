@@ -19,7 +19,7 @@ Designed to be sold as a white-label SaaS plugin: one config file per tenant, on
 
 ## User-Facing Features
 
-- Navigate day by day with **← →** arrows; weekends are automatically skipped
+- Navigate day by day with **chevron arrow** buttons; weekends are automatically skipped
 - **Jump to any date** — click the date label to open a native date picker
 - View all time slots for the selected day, colour-coded by status:
   - 🟢 **Emerald** (`emerald-600`) — free and bookable
@@ -30,6 +30,8 @@ Designed to be sold as a white-label SaaS plugin: one config file per tenant, on
 - Receive a unique cancellation token after booking (copy-to-clipboard button)
 - Cancel an appointment using that token — no account required
 - **Multilingual UI** — English, French (FR), Dutch (NL); auto-detected from browser language, persisted in `localStorage`, switchable at any time via the header buttons
+- **Connection overlay** — a full-screen modal appears (after a 2 s debounce) when the server is unreachable, and disappears automatically on recovery
+- **Error boundary** — unhandled Vue render errors are caught at the root and replaced with a safe reload screen instead of a broken UI
 
 ## Business Rules
 
@@ -124,10 +126,12 @@ schedule-appointment/
 ├── client/                        # Vue 3 + TypeScript frontend
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── AppLayout.vue      # Header + language switcher
-│   │   │   ├── DayNavigator.vue   # ← date → with weekend-skipping & date picker
-│   │   │   └── SlotGrid.vue       # Colour-coded slot tiles
+│   │   │   ├── AppLayout.vue         # Fixed header + nav + language switcher
+│   │   │   ├── ConnectionOverlay.vue # Full-screen offline modal (2 s debounce)
+│   │   │   ├── DayNavigator.vue      # Chevron date nav with weekend-skipping & picker
+│   │   │   └── SlotGrid.vue          # Colour-coded slot tiles
 │   │   ├── composables/
+│   │   │   ├── useConnectionStatus.ts # Polls /api/health every 5 s + online/offline events
 │   │   │   └── useSlotGenerator.ts
 │   │   ├── i18n/
 │   │   │   ├── index.ts           # Locale detection + createI18n setup
@@ -194,11 +198,14 @@ cd ../server && npm install
 ```bash
 # server/.env  (copy from server/.env.example)
 PORT=3000
+NODE_ENV=production        # set this when serving the SPA from Express
 # TENANT_CONFIG='{"openTime":"08:00","closeTime":"18:00"}'
 # ALLOWED_ORIGINS=http://localhost:5173   # comma-separated; default is localhost:5173
 ```
 
 > The Vite dev server proxy hardcodes `localhost:3000` as the backend target. To change it, update `server.proxy` in `client/vite.config.ts`.
+
+> Set `VITE_BASE_URL` (e.g. `/booking`) when deploying the client under a sub-path. It maps to Vite's `base` option.
 
 ### 3. Run in development
 
@@ -219,6 +226,24 @@ The Vite dev server proxies both `/api` and `/socket.io` (including WebSocket up
 ### 4. Open the app
 
 Visit **http://localhost:5173**
+
+### Production build
+
+```bash
+# 1. Build the client
+npm run build --prefix client    # outputs to client/dist/
+
+# 2. Start the server with NODE_ENV=production
+cd server && NODE_ENV=production npm start
+```
+
+When `NODE_ENV=production`, Express serves `client/dist/` as static files and falls back to `index.html` for all non-API routes (Vue Router history mode). No separate static server needed.
+
+To deploy under a sub-path (e.g. `/booking`):
+
+```bash
+VITE_BASE_URL=/booking npm run build --prefix client
+```
 
 ## API Endpoints
 
@@ -340,6 +365,10 @@ Available overrides:
 
 ## Design System
 
+### Typography
+
+Inter (loaded via Google Fonts) is used as the primary typeface, set as `font-sans` in `tailwind.config.js`.
+
 ### Colour Palette
 
 | Token         | Tailwind class                                   | Usage                           |
@@ -359,11 +388,7 @@ Available overrides:
 
 - Cards: `rounded-xl shadow-sm border border-slate-200 bg-white p-6`
 - Inputs: `rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500`
-- Slots: `rounded-lg text-sm font-medium py-2 px-3 transition-colors`
-
-## Development
-
-See [ROADMAP.md](ROADMAP.md) for the full phased development plan.
+- Slots: `rounded-lg text-sm font-medium py-2.5 px-3 transition-colors`
 
 ## License
 
