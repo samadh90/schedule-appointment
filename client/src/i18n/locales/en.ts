@@ -47,6 +47,15 @@ export default {
     validEmailLength: 'Email must be 254 characters or fewer',
     validReason: 'Reason must be 500 characters or less',
   },
+  error: {
+    boundaryTitle: 'Something went wrong',
+    boundaryMsg: 'An unexpected error occurred. Please reload the page.',
+    reload: 'Reload',
+  },
+  connection: {
+    offlineTitle: 'Connection lost',
+    offlineMsg: 'Unable to reach the server. Reconnecting…',
+  },
   cancel: {
     title: 'Cancel Appointment',
     tokenLabel: 'Cancellation Token',

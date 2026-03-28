@@ -47,6 +47,15 @@ export default {
     validEmailLength: "L'e-mail ne peut pas dépasser 254 caractères",
     validReason: 'Le motif ne peut pas dépasser 500 caractères',
   },
+  error: {
+    boundaryTitle: 'Une erreur est survenue',
+    boundaryMsg: 'Une erreur inattendue s’est produite. Veuillez recharger la page.',
+    reload: 'Recharger',
+  },
+  connection: {
+    offlineTitle: 'Connexion perdue',
+    offlineMsg: 'Impossible de joindre le serveur. Reconnexion en cours…',
+  },
   cancel: {
     title: 'Annuler un rendez-vous',
     tokenLabel: "Jeton d'annulation",

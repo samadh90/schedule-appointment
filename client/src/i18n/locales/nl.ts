@@ -47,6 +47,15 @@ export default {
     validEmailLength: 'E-mailadres mag maximaal 254 tekens bevatten',
     validReason: 'De reden mag maximaal 500 tekens bevatten',
   },
+  error: {
+    boundaryTitle: 'Er is iets misgegaan',
+    boundaryMsg: 'Er is een onverwachte fout opgetreden. Herlaad de pagina.',
+    reload: 'Herladen',
+  },
+  connection: {
+    offlineTitle: 'Verbinding verbroken',
+    offlineMsg: 'Kan de server niet bereiken. Opnieuw verbinden…',
+  },
   cancel: {
     title: 'Afspraak annuleren',
     tokenLabel: 'Annuleringstoken',
