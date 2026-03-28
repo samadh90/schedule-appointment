@@ -41,16 +41,26 @@
   "compounds": [
     // ── Both apps, localhost only ─────────────────────────────────────────────
     {
-      "name": "Dev",
+      "name": "Fullstack",
       "configurations": ["Server", "Client"],
-      "stopAll": true
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "",
+        "order": 1
+      }
     },
 
     // ── Both apps, client exposed on LAN ─────────────────────────────────────
     {
-      "name": "Dev (--host)",
+      "name": "Fullstack (--host)",
       "configurations": ["Server", "Client (--host)"],
-      "stopAll": true
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "",
+        "order": 2
+      }
     }
   ]
 }
