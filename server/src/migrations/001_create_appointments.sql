@@ -7,6 +7,9 @@ CREATE TABLE IF NOT EXISTS appointments (
   reason TEXT,
   start_time TEXT NOT NULL,
   cancelled INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  UNIQUE(start_time)
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- Only active (non-cancelled) appointments occupy a slot;
+-- cancelled slots can be rebooked.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_active_start_time ON appointments(start_time) WHERE cancelled = 0;

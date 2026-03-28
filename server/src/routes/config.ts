@@ -1,8 +1,8 @@
-import { Router } from 'express';
-import { config } from '../config';
+import { Router } from 'express'
+import { config } from '../config'
 
-const router = Router();
+const router = Router()
 
-router.get('/', (_req, res) => res.json(config));
+router.get('/', (_req, res) => res.json(config))
 
-export default router;
+export default router
