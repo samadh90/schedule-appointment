@@ -31,10 +31,17 @@ const copied = ref(false)
 
 function validateField(field: string) {
   errors.value[field] = ''
-  if (field === 'first_name' && !form.value.first_name.trim()) errors.value.first_name = t('book.validFirstName')
-  if (field === 'last_name' && !form.value.last_name.trim()) errors.value.last_name = t('book.validLastName')
+  if (field === 'first_name') {
+    if (!form.value.first_name.trim()) errors.value.first_name = t('book.validFirstName')
+    else if (form.value.first_name.trim().length > 100) errors.value.first_name = t('book.validFirstNameLength')
+  }
+  if (field === 'last_name') {
+    if (!form.value.last_name.trim()) errors.value.last_name = t('book.validLastName')
+    else if (form.value.last_name.trim().length > 100) errors.value.last_name = t('book.validLastNameLength')
+  }
   if (field === 'email') {
     if (!form.value.email.trim()) errors.value.email = t('book.validEmail')
+    else if (form.value.email.length > 254) errors.value.email = t('book.validEmailLength')
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email)) errors.value.email = t('book.validEmailFormat')
   }
   if (field === 'reason' && form.value.reason.length > 500) errors.value.reason = t('book.validReason')

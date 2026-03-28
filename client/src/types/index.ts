@@ -15,15 +15,12 @@ export interface BlockedDate {
 }
 
 export interface Appointment {
-  id: number
   cancellation_token: string
   first_name: string
   last_name: string
-  email: string
   reason?: string
   start_time: string
   cancelled: number
-  created_at: string
 }
 
 export type SlotStatus = 'free' | 'booked' | 'blocked' | 'lunch' | 'past'

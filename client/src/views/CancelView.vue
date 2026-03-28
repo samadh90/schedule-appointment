@@ -135,9 +135,6 @@ function formatDateTime(iso: string): string {
             {{ appointment.last_name }}
           </p>
           <p>
-            <span class="text-slate-400">{{ t('cancel.email') }}:</span> {{ appointment.email }}
-          </p>
-          <p>
             <span class="text-slate-400">{{ t('cancel.dateTime') }}:</span>
             {{ formatDateTime(appointment.start_time) }}
           </p>
