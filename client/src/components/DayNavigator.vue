@@ -1,62 +1,124 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t, locale } = useI18n()
 
 const props = defineProps<{
-  modelValue: string  // YYYY-MM-DD
+  modelValue: string
   blockedDates: string[]
+  workDays?: number[]
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [date: string]
 }>()
 
-const today = new Date().toISOString().split('T')[0]
+const today: string = (() => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+})()
+const showPicker = ref(false)
+const pickerInput = ref<HTMLInputElement | null>(null)
 
-function addDays(dateStr: string, n: number): string {
-  const d = new Date(dateStr)
-  d.setDate(d.getDate() + n)
-  return d.toISOString().split('T')[0]
+const effectiveWorkDays = computed(() => props.workDays ?? [1, 2, 3, 4, 5])
+
+watch(showPicker, async val => {
+  if (val) {
+    await nextTick()
+    pickerInput.value?.showPicker?.()
+    pickerInput.value?.focus()
+  }
+})
+
+function isWorkDay(dateStr: string): boolean {
+  return effectiveWorkDays.value.includes(new Date(dateStr + 'T00:00:00').getDay())
 }
 
-const isPrevDisabled = computed(() => props.modelValue <= today)
+function addDays(dateStr: string, n: number): string {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  const date = new Date(y, m - 1, d + n)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+function step(direction: 1 | -1) {
+  let next = addDays(props.modelValue, direction)
+  for (let i = 0; i < 7 && !isWorkDay(next); i++) next = addDays(next, direction)
+  if (next < today) return
+  emit('update:modelValue', next)
+}
+
+const isPrevDisabled = computed(() => {
+  let candidate = addDays(props.modelValue, -1)
+  for (let i = 0; i < 7 && !isWorkDay(candidate); i++) candidate = addDays(candidate, -1)
+  return candidate < today
+})
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00')
-  return d.toLocaleDateString('en-BE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  const localeMap: Record<string, string> = { en: 'en-BE', fr: 'fr-BE', nl: 'nl-BE' }
+  const fmt = localeMap[locale.value] ?? 'en-BE'
+  return d.toLocaleDateString(fmt, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
 }
 
 const isCurrentBlocked = computed(() => props.blockedDates.includes(props.modelValue))
+const isWeekend = computed(() => !isWorkDay(props.modelValue))
+const isUnavailable = computed(() => isCurrentBlocked.value || isWeekend.value)
 
-function prev() {
-  if (!isPrevDisabled.value) {
-    emit('update:modelValue', addDays(props.modelValue, -1))
-  }
-}
-
-function next() {
-  emit('update:modelValue', addDays(props.modelValue, 1))
+function onPickerChange(e: Event) {
+  const val = (e.target as HTMLInputElement).value
+  if (val && val >= today) emit('update:modelValue', val)
+  showPicker.value = false
 }
 </script>
 
 <template>
   <div class="flex items-center justify-between gap-4 py-3">
     <button
-      @click="prev"
+      @click="step(-1)"
       :disabled="isPrevDisabled"
       class="flex items-center justify-center min-w-10 h-10 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 font-medium text-sm"
     >
       ←
     </button>
 
-    <div class="text-center flex-1">
-      <p class="text-sm font-medium text-slate-800" :class="{ 'text-rose-500': isCurrentBlocked }">
-        {{ formatDate(modelValue) }}
+    <div class="text-center flex-1 relative">
+      <button
+        v-if="!showPicker"
+        @click="showPicker = true"
+        class="text-sm font-medium hover:text-emerald-600 transition-colors"
+        :class="isUnavailable ? 'text-rose-500' : 'text-slate-800'"
+        :title="t('slot.pickDate')"
+      >
+        {{ formatDate(modelValue) }} <span class="text-slate-400 text-xs">▾</span>
+      </button>
+
+      <input
+        v-else
+        ref="pickerInput"
+        type="date"
+        :value="modelValue"
+        :min="today"
+        @change="onPickerChange"
+        @blur="showPicker = false"
+        class="rounded-lg border border-emerald-400 focus:ring-2 focus:ring-emerald-500 px-3 py-1.5 text-sm text-slate-800 outline-none"
+      />
+
+      <p v-if="!showPicker && isWeekend" class="text-xs text-rose-400 mt-0.5">
+        {{ t('slot.weekend') }}
       </p>
-      <p v-if="isCurrentBlocked" class="text-xs text-rose-400 mt-0.5">Holiday / Blocked</p>
+      <p v-else-if="!showPicker && isCurrentBlocked" class="text-xs text-rose-400 mt-0.5">
+        {{ t('slot.holiday') }}
+      </p>
     </div>
 
     <button
-      @click="next"
+      @click="step(1)"
       class="flex items-center justify-center min-w-10 h-10 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-slate-700 font-medium text-sm"
     >
       →

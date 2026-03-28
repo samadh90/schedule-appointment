@@ -6,17 +6,14 @@ function timeToMinutes(t: string): number {
 }
 
 function minutesToTime(mins: number): string {
-  const h = Math.floor(mins / 60).toString().padStart(2, '0')
+  const h = Math.floor(mins / 60)
+    .toString()
+    .padStart(2, '0')
   const m = (mins % 60).toString().padStart(2, '0')
   return `${h}:${m}`
 }
 
-export function generateSlots(
-  date: string,
-  config: AppConfig,
-  bookedTimes: string[],
-  isBlocked: boolean
-): Slot[] {
+export function generateSlots(date: string, config: AppConfig, bookedTimes: string[], isBlocked: boolean): Slot[] {
   const now = new Date()
   const slots: Slot[] = []
   const open = timeToMinutes(config.openTime)
@@ -24,12 +21,15 @@ export function generateSlots(
   const lunchStart = timeToMinutes(config.lunchStart)
   const lunchEnd = timeToMinutes(config.lunchEnd)
 
+  const dayOfWeek = new Date(date + 'T00:00:00').getDay()
+  const isWorkDay = config.workDays.includes(dayOfWeek)
+
   for (let t = open; t < close; t += config.slotDurationMins) {
     const timeStr = minutesToTime(t)
     const slotDatetime = new Date(`${date}T${timeStr}:00`)
     let status: SlotStatus
 
-    if (isBlocked) {
+    if (isBlocked || !isWorkDay) {
       status = 'blocked'
     } else if (t >= lunchStart && t < lunchEnd) {
       status = 'lunch'
