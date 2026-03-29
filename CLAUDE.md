@@ -31,11 +31,11 @@ pnpm format          # write
 pnpm format:check    # CI check
 ```
 
-Always run `npx tsc --noEmit` in `server/` and `npx vue-tsc --noEmit` in `client/` after any TypeScript change. Both must pass with zero errors before committing.
+Always run `pnpm --filter ./client exec vue-tsc --noEmit` and `pnpm --filter ./server exec tsc --noEmit` after any TypeScript change. Both must pass with zero errors before committing.
 
 ## Architecture
 
-- **Client** calls `/api/*` via Vite dev proxy; in production via `VITE_API_BASE_URL`
+- **Client** calls `/api/*` through `client/src/utils/api.ts` (`apiUrl()` / `apiSocketOrigin()`). In the SPA the base is empty (same origin). In the embed it is set by `setApiBase()` from the `data-api` attribute or the `apiBase` option.
 - **Server** emits `slot:booked` and `slot:freed` Socket.IO events; client reacts in real time across all open tabs
 - **Database** is SQLite at `server/data/db.sqlite`; migrations run automatically on server start via `server/src/migrations/runner.ts`
 - Soft-delete pattern: `cancelled = 1` frees the slot; a partial unique index on `appointments(start_time) WHERE cancelled = 0` enforces one active booking per slot
@@ -49,9 +49,23 @@ Always run `npx tsc --noEmit` in `server/` and `npx vue-tsc --noEmit` in `client
 
 ## Internationalization
 
-Three locales: `en`, `fr`, `nl` — all in `client/src/i18n/locales/`.
+Five locales: `en`, `fr`, `nl`, `de`, `ru` — all in `client/src/i18n/locales/`.
 
-**Rule:** every user-visible string must have a key in all three locale files. Never add a key to one locale without adding it to the other two. Never surface a raw server `error` string to the user if a translation key can cover that case.
+**Rule:** every user-visible string must have a key in **all five** locale files. Never add a key to one locale without adding it to the others. Never surface a raw server `error` string to the user if a translation key can cover that case.
+
+`SupportedLocale` is the canonical type exported from `client/src/i18n/index.ts`. Use it everywhere; never re-declare the union in other files.
+
+## API base URL
+
+All `fetch()` calls and the Socket.IO connection go through `client/src/utils/api.ts`:
+
+```ts
+import { apiUrl, apiSocketOrigin } from '../utils/api'
+fetch(apiUrl('/api/config')) // prepends the configured base
+io(apiSocketOrigin(), { path: '/socket.io' }) // undefined → same origin
+```
+
+Never hard-code `/api/...` paths directly in stores or views.
 
 ## Security baseline
 

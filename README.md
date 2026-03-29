@@ -6,13 +6,13 @@ Designed as a white-label SaaS plugin: one config file per tenant, one SQLite fi
 
 ## Tech stack
 
-| Layer     | Technology                                       |
-| --------- | ------------------------------------------------ |
-| Frontend  | Vue 3 + TypeScript + Vite + Tailwind CSS         |
-| State     | Pinia + Vue Router + vue-i18n v9 (EN / FR / NL)  |
-| Real-time | Socket.IO — slot updates pushed to all open tabs |
-| Backend   | Node.js + Express + Socket.IO                    |
-| Database  | SQLite via `better-sqlite3`                      |
+| Layer     | Technology                                                |
+| --------- | --------------------------------------------------------- |
+| Frontend  | Vue 3 + TypeScript + Vite + Tailwind CSS                  |
+| State     | Pinia + Vue Router + vue-i18n v9 (EN / FR / NL / DE / RU) |
+| Real-time | Socket.IO — slot updates pushed to all open tabs          |
+| Backend   | Node.js + Express + Socket.IO                             |
+| Database  | SQLite via `better-sqlite3`                               |
 
 ## Features
 
@@ -20,8 +20,8 @@ Designed as a white-label SaaS plugin: one config file per tenant, one SQLite fi
 - Real-time updates — every open tab reacts instantly when a slot is booked or freed
 - Book with name + email + optional reason; receive a UUID cancellation token
 - Cancel any time before the deadline using that token — no account required
-- Multilingual UI: EN / FR / NL, auto-detected from browser / host page language
-- Embeddable widget — drop `init('#my-div', { lang: 'en' })` into any HTML page
+- Multilingual UI: EN / FR / NL / DE / RU, auto-detected from browser / host page language
+- Embeddable widget — drop one `<script>` tag and a `data-schedule-widget` div, no JavaScript required
 - Connection overlay when the server is unreachable; error boundary for unexpected crashes
 
 ## Prerequisites
@@ -43,6 +43,28 @@ pnpm dev:embed
 ```
 
 Open **http://localhost:5173** (SPA) or **http://localhost:5174** (embed demo)
+
+## Embedding in any website
+
+```html
+<!-- 1. Place the container wherever the widget should appear -->
+<div data-schedule-widget data-api="https://your-api.example.com" data-lang="en"></div>
+
+<!-- 2. Load the built widget — it initializes automatically -->
+<script src="/path/to/widget.iife.js"></script>
+```
+
+`data-api` is the base URL of your deployed API. Omit it for same-origin deployments.  
+`data-lang` overrides locale detection (which otherwise reads `<html lang>` then the browser).
+
+For dynamic use cases the programmatic API is also available:
+
+```js
+import { init } from './widget.iife.js'
+const widget = init('#my-div', { apiBase: 'https://...', lang: 'fr' })
+// later:
+widget.destroy()
+```
 
 ## Documentation
 

@@ -18,7 +18,11 @@ For client-specific conventions see `.github/instructions/client.instructions.md
 
 ### embed package
 
-`embed/src/widget.ts` exports `init(selector, options?)` which mounts `EmbedApp.vue` (no SaaS navbar) into the host element using `createMemoryHistory` so the widget never touches the host page URL. Language priority: user-saved choice (`schedule-widget-locale` in localStorage) → `options.lang` → `<html lang>` → browser language → `'en'`.
+`embed/src/widget.ts` auto-initializes every `[data-schedule-widget]` element on `DOMContentLoaded`. Customers need no JavaScript — just a `<div data-schedule-widget data-api="..." data-lang="...">` and a `<script>` tag. The programmatic `init(target, options?)` API is also exported for dynamic use; it accepts a CSS selector or an Element, reads `data-api` / `data-lang` as fallbacks, calls `setApiBase()` from `client/src/utils/api.ts`, and returns a `WidgetInstance` with `destroy()`.
+
+The widget mounts `EmbedApp.vue` (no SaaS navbar) using `createMemoryHistory` so it never touches the host page URL. Language priority: user-saved choice (`schedule-widget-locale` in localStorage) → `options.lang` / `data-lang` → `<html lang>` → browser language → `'en'`.
+
+CSS: `embed/src/widget.css` imports only `@tailwind components` and `@tailwind utilities` (never `@tailwind base`). A scoped reset block provides the Preflight essentials (`border-style: solid`, `box-sizing`, font-family…) under `.schedule-widget *` so the host page styles are never affected. Tailwind Preflight is disabled in `embed/tailwind.config.js` via `corePlugins: { preflight: false }`.
 
 ---
 
