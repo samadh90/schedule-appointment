@@ -8,22 +8,27 @@ Anonymous appointment booking system. No authentication — a UUID v4 cancellati
 /
 ├── client/        Vue 3 + TypeScript SPA (Vite)
 ├── server/        Node.js + Express + Socket.IO API (TypeScript)
-└── package.json   Root: runs both via concurrently
+├── embed/         Embeddable widget package (Vite library mode)
+└── package.json   Root: runs apps via concurrently
 ```
 
 ## Commands
 
 ```bash
-# Development (both client and server with hot-reload)
-npm run dev
+# Development — SPA + server
+pnpm dev
+
+# Development — embed demo + server
+pnpm dev:embed
 
 # Build
-npm run build --prefix client   # vue-tsc + vite build
-npm run build --prefix server   # tsc
+pnpm --filter ./client build   # vue-tsc + vite build
+pnpm --filter ./server build   # tsc
+pnpm --filter ./embed build    # vite library build → widget.iife.js
 
 # Format
-npm run format          # write
-npm run format:check    # CI check
+pnpm format          # write
+pnpm format:check    # CI check
 ```
 
 Always run `npx tsc --noEmit` in `server/` and `npx vue-tsc --noEmit` in `client/` after any TypeScript change. Both must pass with zero errors before committing.

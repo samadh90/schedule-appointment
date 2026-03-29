@@ -5,15 +5,20 @@
 **schedule-appointment** is a white-label, embeddable appointment-scheduling plugin.
 Users browse available time slots, book with a name/email, receive a UUID cancellation token, and can cancel any time before the deadline — no account required.
 
-The app is a **monorepo** with two independent apps:
+The app is a **monorepo** with three packages:
 
-| Dir       | Role                                         |
-| --------- | -------------------------------------------- |
-| `server/` | Node 24 + Express + Socket.IO + SQLite       |
-| `client/` | Vue 3 + TypeScript + Vite + Tailwind + Pinia |
+| Dir       | Role                                                          |
+| --------- | ------------------------------------------------------------- |
+| `server/` | Node 24 + Express + Socket.IO + SQLite                        |
+| `client/` | Vue 3 + TypeScript + Vite + Tailwind + Pinia (standalone SPA) |
+| `embed/`  | Vite library build — mounts the widget into any host `<div>`  |
 
 For server-specific conventions see `.github/instructions/server.instructions.md`.
 For client-specific conventions see `.github/instructions/client.instructions.md`.
+
+### embed package
+
+`embed/src/widget.ts` exports `init(selector, options?)` which mounts `EmbedApp.vue` (no SaaS navbar) into the host element using `createMemoryHistory` so the widget never touches the host page URL. Language priority: user-saved choice (`schedule-widget-locale` in localStorage) → `options.lang` → `<html lang>` → browser language → `'en'`.
 
 ---
 
@@ -69,10 +74,10 @@ See [`.github/instructions/commits.instructions.md`](.github/instructions/commit
 
 ```bash
 # Install all deps
-npm install && cd client && npm install && cd ../server && npm install
+pnpm install
 
 # Start both apps (concurrently)
-cd .. && npm run dev
+pnpm dev
 # server → http://localhost:3000
 # client → http://localhost:5173
 ```

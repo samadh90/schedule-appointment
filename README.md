@@ -20,25 +20,29 @@ Designed as a white-label SaaS plugin: one config file per tenant, one SQLite fi
 - Real-time updates — every open tab reacts instantly when a slot is booked or freed
 - Book with name + email + optional reason; receive a UUID cancellation token
 - Cancel any time before the deadline using that token — no account required
-- Multilingual UI: EN / FR / NL, auto-detected from browser language
+- Multilingual UI: EN / FR / NL, auto-detected from browser / host page language
+- Embeddable widget — drop `init('#my-div', { lang: 'en' })` into any HTML page
 - Connection overlay when the server is unreachable; error boundary for unexpected crashes
 
 ## Prerequisites
 
 - Node.js **≥ 24**
-- npm ≥ 10
+- pnpm ≥ 9 (`npm install -g pnpm`)
 
 ## Quick start
 
 ```bash
 # Install all dependencies
-npm install && cd client && npm install && cd ../server && npm install
+pnpm install
 
 # Start both apps with hot-reload (server :3000, client :5173)
-cd .. && npm run dev
+pnpm dev
+
+# Or start the embed demo instead of the SPA (server :3000, embed demo :5174)
+pnpm dev:embed
 ```
 
-Open **http://localhost:5173**
+Open **http://localhost:5173** (SPA) or **http://localhost:5174** (embed demo)
 
 ## Documentation
 

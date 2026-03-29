@@ -9,9 +9,9 @@ description: 'Use when writing commit messages, staging changes, or asked to com
 Run these from the repo root **before every commit** — in this order:
 
 ```bash
-npm run format          # auto-fix formatting across all files
-cd client && npx vue-tsc --noEmit && cd ..
-cd server && npx tsc --noEmit && cd ..
+pnpm format                              # auto-fix formatting across all files
+pnpm --filter ./client exec vue-tsc --noEmit
+pnpm --filter ./server exec tsc --noEmit
 ```
 
 All three must pass with zero errors before staging anything.
@@ -56,6 +56,7 @@ Use one scope per commit. If a commit touches multiple scopes, split it.
 | `db`       | Migrations, schema, SQLite setup                     |
 | `i18n`     | Locale files, i18n config                            |
 | `security` | Rate limiting, CORS, input sanitisation              |
+| `embed`    | Any file under `embed/`                              |
 | `config`   | Root `package.json`, `.prettierrc`, `tsconfig`, etc. |
 | `ci`       | GitHub Actions, hooks                                |
 
