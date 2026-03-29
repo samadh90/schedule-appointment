@@ -349,12 +349,14 @@ router.get('/:token/ical', tokenLimiter, (req: Request, res: Response) => {
     return res.status(404).json({ error: 'Appointment not found' })
   }
 
-  // "YYYY-MM-DDTHH:MM:00" → "YYYYMMDDTHHMMSS" for iCal DTSTART/DTEND
-  function toICalDt(localStr: string): string {
-    return localStr.replace(/-/g, '').replace(/:/g, '').substring(0, 15)
+  // Convert stored local time to UTC and format as iCal UTC stamp "YYYYMMDDTHHMMSSZ"
+  // Using UTC avoids VTIMEZONE block dependency — universally supported by all calendar apps
+  function toICalUtc(localStr: string): string {
+    const utc = localToUTC(localStr, config.timezone)
+    return utc.toISOString().replace(/[-:.]/g, '').substring(0, 15) + 'Z'
   }
 
-  // Add slotDurationMins to produce DTEND
+  // Add slotDurationMins to produce DTEND local string, then convert to UTC
   function addMinutes(localStr: string, mins: number): string {
     const [dp, tp] = localStr.split('T')
     const [h, m] = tp.split(':').map(Number)
@@ -364,8 +366,8 @@ router.get('/:token/ical', tokenLimiter, (req: Request, res: Response) => {
     return `${dp}T${String(nh).padStart(2, '0')}:${String(nm).padStart(2, '0')}:00`
   }
 
-  const dtStart = toICalDt(appointment.start_time)
-  const dtEnd = toICalDt(addMinutes(appointment.start_time, config.slotDurationMins))
+  const dtStart = toICalUtc(appointment.start_time)
+  const dtEnd = toICalUtc(addMinutes(appointment.start_time, config.slotDurationMins))
   const now = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15) + 'Z'
   const summary = `${appointment.first_name} ${appointment.last_name}`
 
@@ -378,8 +380,8 @@ router.get('/:token/ical', tokenLimiter, (req: Request, res: Response) => {
     'BEGIN:VEVENT',
     `UID:${token}@schedule-appointment`,
     `DTSTAMP:${now}`,
-    `DTSTART;TZID=${config.timezone}:${dtStart}`,
-    `DTEND;TZID=${config.timezone}:${dtEnd}`,
+    `DTSTART:${dtStart}`,
+    `DTEND:${dtEnd}`,
     `SUMMARY:${summary}`,
     `DESCRIPTION:Cancellation token: ${token}`,
     'END:VEVENT',
