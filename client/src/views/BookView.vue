@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppointmentsStore } from '../stores/appointments'
+import { apiUrl } from '../utils/api'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -57,7 +58,7 @@ async function submit() {
   loading.value = true
   serverError.value = null
   try {
-    const res = await fetch('/api/appointments', {
+    const res = await fetch(apiUrl('/api/appointments'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -88,7 +89,7 @@ async function copyToken() {
 }
 
 function formatDateTime(iso: string): string {
-  const localeMap: Record<string, string> = { en: 'en-BE', fr: 'fr-BE', nl: 'nl-BE' }
+  const localeMap: Record<string, string> = { en: 'en-BE', fr: 'fr-BE', nl: 'nl-BE', de: 'de-DE', ru: 'ru-RU' }
   const fmt = localeMap[locale.value] ?? 'en-BE'
   return new Date(iso).toLocaleString(fmt, {
     weekday: 'long',

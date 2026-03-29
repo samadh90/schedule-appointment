@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { Appointment } from '../types'
+import { apiUrl } from '../utils/api'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -24,7 +25,7 @@ async function lookup() {
   appointment.value = null
   lookupLoading.value = true
   try {
-    const res = await fetch(`/api/appointments/${token.value}`)
+    const res = await fetch(apiUrl(`/api/appointments/${token.value}`))
     if (res.status === 404) {
       lookupError.value = t('cancel.errNotFound')
       return
@@ -43,7 +44,7 @@ async function confirmCancel() {
   cancelLoading.value = true
   cancelError.value = null
   try {
-    const res = await fetch(`/api/appointments/${appointment.value.cancellation_token}`, {
+    const res = await fetch(apiUrl(`/api/appointments/${appointment.value.cancellation_token}`), {
       method: 'DELETE',
     })
     const data = await res.json()
@@ -60,7 +61,7 @@ async function confirmCancel() {
 }
 
 function formatDateTime(iso: string): string {
-  const localeMap: Record<string, string> = { en: 'en-BE', fr: 'fr-BE', nl: 'nl-BE' }
+  const localeMap: Record<string, string> = { en: 'en-BE', fr: 'fr-BE', nl: 'nl-BE', de: 'de-DE', ru: 'ru-RU' }
   const fmt = localeMap[locale.value] ?? 'en-BE'
   return new Date(iso).toLocaleString(fmt, {
     weekday: 'long',

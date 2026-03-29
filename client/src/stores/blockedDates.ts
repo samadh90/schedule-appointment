@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { BlockedDate } from '../types'
+import { apiUrl } from '../utils/api'
 
 export const useBlockedDatesStore = defineStore('blockedDates', () => {
   const blockedDates = ref<BlockedDate[]>([])
@@ -13,7 +14,7 @@ export const useBlockedDatesStore = defineStore('blockedDates', () => {
     const key = `${from}/${to}`
     if (loadedRanges.value.includes(key)) return
     try {
-      const res = await fetch(`/api/blocked-dates?from=${from}&to=${to}`)
+      const res = await fetch(apiUrl(`/api/blocked-dates?from=${from}&to=${to}`))
       if (!res.ok) throw new Error('Failed to fetch blocked dates')
       const data: BlockedDate[] = await res.json()
       for (const d of data) {

@@ -1,4 +1,5 @@
 import { ref, onMounted, onUnmounted } from 'vue'
+import { apiUrl } from '../utils/api'
 
 export function useConnectionStatus() {
   const isOnline = ref(true)
@@ -23,7 +24,7 @@ export function useConnectionStatus() {
 
   async function checkHealth() {
     try {
-      const res = await fetch('/api/health', { signal: AbortSignal.timeout(3000) })
+      const res = await fetch(apiUrl('/api/health'), { signal: AbortSignal.timeout(3000) })
       if (res.ok) setOnline()
       else setOfflineDebounced()
     } catch {
