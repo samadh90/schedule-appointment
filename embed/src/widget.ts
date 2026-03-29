@@ -7,6 +7,7 @@ import SlotListView from '../../client/src/views/SlotListView.vue'
 import BookView from '../../client/src/views/BookView.vue'
 import CancelView from '../../client/src/views/CancelView.vue'
 import '../../client/src/style.css'
+import 'flag-icons/css/flag-icons.min.css'
 
 const SUPPORTED = ['en', 'fr', 'nl', 'de', 'ru'] as const
 type SupportedLocale = (typeof SUPPORTED)[number]

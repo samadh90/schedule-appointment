@@ -8,12 +8,12 @@ const props = withDefaults(defineProps<{ storageKey?: string }>(), {
   storageKey: 'locale',
 })
 
-const LANGS: Record<SupportedLocale, { flag: string; name: string }> = {
-  en: { flag: '🇬🇧', name: 'English' },
-  fr: { flag: '🇫🇷', name: 'Français' },
-  nl: { flag: '🇳🇱', name: 'Nederlands' },
-  de: { flag: '🇩🇪', name: 'Deutsch' },
-  ru: { flag: '🇷🇺', name: 'Русский' },
+const LANGS: Record<SupportedLocale, { fi: string; name: string }> = {
+  en: { fi: 'gb', name: 'English' },
+  fr: { fi: 'fr', name: 'Français' },
+  nl: { fi: 'nl', name: 'Nederlands' },
+  de: { fi: 'de', name: 'Deutsch' },
+  ru: { fi: 'ru', name: 'Русский' },
 }
 
 const { locale } = useI18n()
@@ -58,7 +58,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
       :aria-expanded="open"
       aria-haspopup="listbox"
     >
-      <span class="text-base leading-none">{{ current.flag }}</span>
+      <span :class="`fi fi-${current.fi}`" class="text-base leading-none rounded-sm" />
       <svg
         class="w-3 h-3 text-slate-400 transition-transform"
         :class="{ 'rotate-180': open }"
@@ -90,7 +90,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
           class="flex items-center gap-2.5 px-3 py-2 text-sm cursor-pointer transition-colors"
           :class="locale === lang ? 'bg-emerald-50 text-emerald-700 font-medium' : 'text-slate-700 hover:bg-slate-50'"
         >
-          <span class="text-base leading-none">{{ meta.flag }}</span>
+          <span :class="`fi fi-${meta.fi}`" class="text-base leading-none rounded-sm" />
           <span>{{ meta.name }}</span>
         </li>
       </ul>
