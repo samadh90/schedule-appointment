@@ -2,18 +2,13 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { saveLocale } from '../i18n'
+import LangDropdown from './LangDropdown.vue'
 
-const { locale, t } = useI18n()
+const { t } = useI18n()
 const route = useRoute()
 
 const isSchedule = computed(() => route.path === '/')
 const isCancel = computed(() => route.path.startsWith('/cancel'))
-
-function setLocale(l: 'en' | 'fr' | 'nl') {
-  locale.value = l
-  saveLocale(l)
-}
 </script>
 
 <template>
@@ -66,20 +61,7 @@ function setLocale(l: 'en' | 'fr' | 'nl') {
           <!-- Divider -->
           <span class="w-px h-4 bg-slate-200 mx-2" />
 
-          <!-- Language switcher -->
-          <div class="flex items-center gap-1">
-            <button
-              v-for="lang in ['en', 'fr', 'nl'] as const"
-              :key="lang"
-              @click="setLocale(lang)"
-              class="px-2 py-1 rounded text-xs font-medium transition-colors"
-              :class="
-                locale === lang ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
-              "
-            >
-              {{ t(`lang.${lang}`) }}
-            </button>
-          </div>
+          <LangDropdown />
         </nav>
       </div>
     </header>
