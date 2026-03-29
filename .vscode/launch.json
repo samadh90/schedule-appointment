@@ -10,6 +10,7 @@
       "runtimeArgs": ["run", "dev"],
       "cwd": "${workspaceFolder}/server",
       "console": "integratedTerminal",
+      "killBehavior": "forceful",
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
     },
 
@@ -35,13 +36,35 @@
       "cwd": "${workspaceFolder}/client",
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+
+    // ── Embed dev server (:5174) ──────────────────────────────────────────────
+    {
+      "name": "Embed",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/embed",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+    {
+      "name": "Embed (--host)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "dev:host"],
+      "cwd": "${workspaceFolder}/embed",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
     }
   ],
 
   "compounds": [
     // ── Both apps, localhost only ─────────────────────────────────────────────
     {
-      "name": "Fullstack",
+      "name": "Client (Server + Client)",
       "configurations": ["Server", "Client"],
       "stopAll": true,
       "presentation": {
@@ -53,13 +76,35 @@
 
     // ── Both apps, client exposed on LAN ─────────────────────────────────────
     {
-      "name": "Fullstack (--host)",
+      "name": "Client (Server + Client --host)",
       "configurations": ["Server", "Client (--host)"],
       "stopAll": true,
       "presentation": {
         "hidden": false,
         "group": "",
         "order": 2
+      }
+    },
+
+    // ── Server + Embed widget dev ─────────────────────────────────────────────
+    {
+      "name": "Embed (Server + Widget)",
+      "configurations": ["Server", "Embed"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "",
+        "order": 3
+      }
+    },
+    {
+      "name": "Embed (Server + Widget --host)",
+      "configurations": ["Server", "Embed (--host)"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "",
+        "order": 4
       }
     }
   ]
