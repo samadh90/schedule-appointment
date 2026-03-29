@@ -44,8 +44,11 @@ function resolveLocale(hostLang?: string): SupportedLocale {
 
 export interface WidgetOptions {
   /** Base URL of the schedule-appointment API, e.g. 'https://api.example.com'.
-   *  Defaults to the current page's origin (correct for same-origin SPA use). */
+   *  Defaults to the current page's origin (correct for same-origin deployments). */
   apiBase?: string
+  /** Force a locale. Accepts any BCP-47 tag — matched by prefix to a
+   *  supported locale. Falls back to the host page's <html lang>, then browser
+   *  language, then 'en'. */
   lang?: string
 }
 
@@ -54,17 +57,28 @@ export interface WidgetInstance {
   destroy(): void
 }
 
-export function init(selector: string, options: WidgetOptions = {}): WidgetInstance {
-  const el = document.querySelector(selector)
-  if (!el) throw new Error(`[schedule-widget] Element not found: ${selector}`)
+/**
+ * Mount the scheduling widget into any element.
+ *
+ * @param target CSS selector string or an HTMLElement.
+ * @param options Optional configuration. Can also be supplied as data-*
+ *   attributes on the target element (data-api, data-lang) — those are
+ *   overridden by this options object when both are present.
+ */
+export function init(target: string | Element, options: WidgetOptions = {}): WidgetInstance {
+  const el = typeof target === 'string' ? document.querySelector(target) : target
+  if (!el) throw new Error(`[schedule-widget] Element not found: ${target}`)
 
-  setApiBase(options.apiBase ?? '')
+  // data-* attributes on the element are the zero-JS config fallback
+  const apiBase = options.apiBase ?? (el as HTMLElement).dataset.api ?? ''
+  const lang = options.lang ?? (el as HTMLElement).dataset.lang
+
+  setApiBase(apiBase)
   el.classList.add('schedule-widget')
 
-  const locale = resolveLocale(options.lang)
+  const locale = resolveLocale(lang)
   i18n.global.locale.value = locale
 
-  // Use memory history so the widget never touches the host page's URL bar
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -86,4 +100,21 @@ export function init(selector: string, options: WidgetOptions = {}): WidgetInsta
       el.classList.remove('schedule-widget')
     },
   }
+}
+
+/**
+ * Auto-initialize every element that carries the [data-schedule-widget]
+ * attribute. Called automatically on DOMContentLoaded — customers only need
+ * a <div> and the <script> tag, no JavaScript of their own.
+ */
+function autoInit(): void {
+  document.querySelectorAll<HTMLElement>('[data-schedule-widget]').forEach(el => {
+    init(el)
+  })
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', autoInit)
+} else {
+  autoInit()
 }

@@ -86,17 +86,25 @@
     <main class="site-main">
       <h2 id="booking">Online Appointment Booking</h2>
 
-      <!-- The widget mounts here -->
-      <div id="schedule-widget"></div>
+      <!-- ✅ SIMPLE INTEGRATION — no JavaScript needed.
+           data-api: where the API lives (omit for same-origin deployments).
+           data-lang: override locale (falls back to <html lang>, then browser).
+           The widget self-initializes when the script loads. -->
+      <div data-schedule-widget data-api="" data-lang="en"></div>
     </main>
 
     <footer class="site-footer">&copy; 2026 Dr. Emily Smith. All rights reserved.</footer>
 
+    <!-- Load the widget — it auto-initializes [data-schedule-widget] elements.
+         In production replace the src with the URL of your built widget.iife.js -->
+    <script type="module" src="/src/widget.ts"></script>
+
+    <!-- PROGRAMMATIC API (optional — for dynamic use cases):
     <script type="module">
       import { init } from '/src/widget.ts'
-      // In production pass apiBase: 'https://your-saas-api.example.com'
-      // In dev the Vite proxy forwards /api and /socket.io to :3000
-      init('#schedule-widget', { lang: 'en' })
+      const widget = init('#my-div', { apiBase: 'https://api.example.com', lang: 'en' })
+      // later: widget.destroy()
     </script>
+    -->
   </body>
 </html>
