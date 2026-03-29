@@ -83,9 +83,26 @@ async function submit() {
 
 async function copyToken() {
   if (!success.value) return
-  await navigator.clipboard.writeText(success.value.cancellation_token)
-  copied.value = true
-  setTimeout(() => (copied.value = false), 2000)
+  const text = success.value.cancellation_token
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text)
+    } else {
+      // Fallback for non-HTTPS (e.g. LAN IP)
+      const el = document.createElement('textarea')
+      el.value = text
+      el.style.position = 'fixed'
+      el.style.opacity = '0'
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+    }
+    copied.value = true
+    setTimeout(() => (copied.value = false), 2000)
+  } catch {
+    // silently ignore — user can copy manually from the displayed token
+  }
 }
 
 function formatDateTime(iso: string): string {
