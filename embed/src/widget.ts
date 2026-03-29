@@ -8,7 +8,7 @@ import BookView from '../../client/src/views/BookView.vue'
 import CancelView from '../../client/src/views/CancelView.vue'
 import '../../client/src/style.css'
 
-const SUPPORTED = ['en', 'fr', 'nl'] as const
+const SUPPORTED = ['en', 'fr', 'nl', 'de', 'ru'] as const
 type SupportedLocale = (typeof SUPPORTED)[number]
 
 function toSupported(raw: string | null | undefined): SupportedLocale | null {
@@ -49,7 +49,7 @@ export function init(selector: string, options: WidgetOptions = {}) {
   if (!el) throw new Error(`[schedule-widget] Element not found: ${selector}`)
 
   const locale = resolveLocale(options.lang)
-  i18n.global.locale.value = locale as 'en' | 'fr' | 'nl'
+  i18n.global.locale.value = locale
 
   // Use memory history so the widget never touches the host page's URL bar
   const router = createRouter({
