@@ -7,6 +7,12 @@ export interface AppConfig {
   cancelDeadlineHours: number
   timezone: string
   workDays: number[] // 0=Sun … 6=Sat
+  // Optional \u2014 customer's main website; CancelView redirects here after cancel
+  siteUrl?: string
+  // Optional \u2014 public URL of the SPA (used to build cancel links in emails)
+  bookingUrl?: string
+  // Optional \u2014 display name used in outbound emails
+  emailFromName?: string
 }
 
 export interface BlockedDate {

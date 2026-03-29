@@ -4,9 +4,11 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { Appointment } from '../types'
 import { apiUrl } from '../utils/api'
+import { useConfigStore } from '../stores/config'
 
 const { t, locale } = useI18n()
 const route = useRoute()
+const configStore = useConfigStore()
 
 const token = ref((route.params.token as string) ?? '')
 const appointment = ref<Appointment | null>(null)
@@ -15,8 +17,10 @@ const lookupLoading = ref(false)
 const cancelLoading = ref(false)
 const cancelResult = ref<'success' | 'error' | null>(null)
 const cancelError = ref<string | null>(null)
+const redirectCountdown = ref<number | null>(null)
 
 onMounted(() => {
+  configStore.fetchConfig()
   if (token.value) lookup()
 })
 
@@ -50,6 +54,21 @@ async function confirmCancel() {
     const data = await res.json()
     if (res.ok) {
       cancelResult.value = 'success'
+      const siteUrl = configStore.config?.siteUrl
+      if (siteUrl) {
+        redirectCountdown.value = 5
+        const timer = setInterval(() => {
+          if (redirectCountdown.value === null) {
+            clearInterval(timer)
+            return
+          }
+          redirectCountdown.value--
+          if (redirectCountdown.value <= 0) {
+            clearInterval(timer)
+            window.location.href = siteUrl
+          }
+        }, 1000)
+      }
     } else {
       cancelError.value = data.error ?? t('cancel.errGeneric')
     }
@@ -100,12 +119,24 @@ function formatDateTime(iso: string): string {
       </div>
       <h2 class="text-xl font-semibold text-slate-800 mb-2">{{ t('cancel.successTitle') }}</h2>
       <p class="text-sm text-slate-500 mb-6">{{ t('cancel.successMsg') }}</p>
-      <router-link
-        to="/"
-        class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
-      >
-        {{ t('cancel.bookNewBtn') }}
-      </router-link>
+      <p v-if="redirectCountdown !== null" class="text-sm text-slate-400 mb-4">
+        {{ t('cancel.redirecting', { n: redirectCountdown }) }}
+      </p>
+      <div class="flex flex-col sm:flex-row gap-2 justify-center">
+        <router-link
+          to="/"
+          class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+        >
+          {{ t('cancel.bookNewBtn') }}
+        </router-link>
+        <a
+          v-if="configStore.config?.siteUrl"
+          :href="configStore.config.siteUrl"
+          class="bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+        >
+          {{ t('cancel.backToSite') }}
+        </a>
+      </div>
     </div>
 
     <!-- Token input + details -->

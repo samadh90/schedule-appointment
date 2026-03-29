@@ -8,6 +8,14 @@ export interface Config {
   timezone: string
   // 0 = Sunday, 1 = Monday, …, 6 = Saturday
   workDays: number[]
+  // Optional — outbound webhook called on booking/cancellation
+  webhookUrl?: string
+  // Optional — public URL of the SPA (used to build cancel links in emails)
+  bookingUrl?: string
+  // Optional — customer's main website; CancelView redirects here after cancel
+  siteUrl?: string
+  // Optional — "From" display name for outbound emails (e.g. "Dr. Smith Dental")
+  emailFromName?: string
 }
 
 const defaultConfig: Config = {
@@ -78,6 +86,24 @@ function validateTenantConfig(raw: unknown): Partial<Config> {
     out.workDays = v as number[]
   }
 
+  for (const key of ['webhookUrl', 'bookingUrl', 'siteUrl'] as const) {
+    if (key in obj) {
+      const v = obj[key]
+      if (typeof v !== 'string' || (!v.startsWith('https://') && !v.startsWith('http://'))) {
+        throw new Error(`TENANT_CONFIG.${key} must be a valid http/https URL`)
+      }
+      out[key] = (v as string).replace(/\/$/, '')
+    }
+  }
+
+  if ('emailFromName' in obj) {
+    const v = obj.emailFromName
+    if (typeof v !== 'string' || v.trim().length === 0 || v.length > 100) {
+      throw new Error('TENANT_CONFIG.emailFromName must be a non-empty string of up to 100 characters')
+    }
+    out.emailFromName = v as string
+  }
+
   return out
 }
 
@@ -103,3 +129,19 @@ function buildConfig(): Config {
 
 // TENANT_CONFIG env var (JSON) overrides any field; invalid values crash-fast at startup
 export const config: Config = buildConfig()
+
+// SMTP configuration — read directly from env, not from TENANT_CONFIG (operator-level secrets)
+export const emailConfig = {
+  host: process.env.SMTP_HOST ?? '',
+  port: parseInt(process.env.SMTP_PORT ?? '587', 10),
+  secure: process.env.SMTP_SECURE === 'true',
+  user: process.env.SMTP_USER ?? '',
+  pass: process.env.SMTP_PASS ?? '',
+  from: process.env.EMAIL_FROM ?? '',
+  // One of: en | fr | nl | de | ru — defaults to English
+  locale: (process.env.EMAIL_LOCALE ?? 'en') as 'en' | 'fr' | 'nl' | 'de' | 'ru',
+  // If any required SMTP field is missing, emails are silently skipped
+  get enabled(): boolean {
+    return !!(this.host && this.user && this.pass && this.from)
+  },
+}

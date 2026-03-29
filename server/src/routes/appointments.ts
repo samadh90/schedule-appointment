@@ -4,6 +4,8 @@ import rateLimit from 'express-rate-limit'
 import db from '../db'
 import { config } from '../config'
 import { io } from '../index'
+import { fireWebhook } from '../utils/webhook'
+import { sendBookingConfirmation, sendCancellationConfirmation } from '../utils/mailer'
 
 const router = Router()
 
@@ -223,6 +225,26 @@ router.post('/', bookingLimiter, (req: Request, res: Response) => {
 
   io.emit('slot:booked', { date: datePart, time: timePart })
 
+  if (config.webhookUrl) {
+    fireWebhook(config.webhookUrl, {
+      event: 'booked',
+      cancellation_token,
+      start_time: normalizedStartTime,
+      first_name: (first_name as string).trim(),
+      last_name: (last_name as string).trim(),
+      email: (email as string).trim(),
+      reason: typeof reason === 'string' ? reason : null,
+    })
+  }
+
+  sendBookingConfirmation({
+    to: (email as string).trim(),
+    firstName: (first_name as string).trim(),
+    lastName: (last_name as string).trim(),
+    startTime: normalizedStartTime,
+    cancellationToken: cancellation_token,
+  })
+
   return res.status(201).json({
     cancellation_token,
     start_time: normalizedStartTime,
@@ -288,7 +310,85 @@ router.delete('/:token', tokenLimiter, (req: Request, res: Response) => {
   const time = appointment.start_time.substring(11, 16)
   io.emit('slot:freed', { date, time })
 
+  if (config.webhookUrl) {
+    fireWebhook(config.webhookUrl, {
+      event: 'cancelled',
+      cancellation_token: token,
+      start_time: appointment.start_time,
+    })
+  }
+
+  // Re-fetch email for cancellation notification (not stored in the token-lookup result)
+  const full = db.prepare('SELECT first_name, email FROM appointments WHERE cancellation_token = ?').get(token) as
+    | Pick<AppointmentRow, 'first_name' | 'email'>
+    | undefined
+
+  if (full) {
+    sendCancellationConfirmation({
+      to: full.email,
+      firstName: full.first_name,
+      startTime: appointment.start_time,
+    })
+  }
+
   return res.status(200).json({ message: 'Appointment cancelled' })
+})
+
+// GET /:token/ical — returns an .ics calendar file for the appointment
+router.get('/:token/ical', tokenLimiter, (req: Request, res: Response) => {
+  const { token } = req.params
+
+  const appointment = db
+    .prepare(
+      `SELECT first_name, last_name, start_time, cancelled
+       FROM appointments WHERE cancellation_token = ?`,
+    )
+    .get(token) as Pick<AppointmentRow, 'first_name' | 'last_name' | 'start_time' | 'cancelled'> | undefined
+
+  if (!appointment || appointment.cancelled === 1) {
+    return res.status(404).json({ error: 'Appointment not found' })
+  }
+
+  // "YYYY-MM-DDTHH:MM:00" → "YYYYMMDDTHHMMSS" for iCal DTSTART/DTEND
+  function toICalDt(localStr: string): string {
+    return localStr.replace(/-/g, '').replace(/:/g, '').substring(0, 15)
+  }
+
+  // Add slotDurationMins to produce DTEND
+  function addMinutes(localStr: string, mins: number): string {
+    const [dp, tp] = localStr.split('T')
+    const [h, m] = tp.split(':').map(Number)
+    const total = h * 60 + m + mins
+    const nh = Math.floor(total / 60) % 24
+    const nm = total % 60
+    return `${dp}T${String(nh).padStart(2, '0')}:${String(nm).padStart(2, '0')}:00`
+  }
+
+  const dtStart = toICalDt(appointment.start_time)
+  const dtEnd = toICalDt(addMinutes(appointment.start_time, config.slotDurationMins))
+  const now = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15) + 'Z'
+  const summary = `${appointment.first_name} ${appointment.last_name}`
+
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//schedule-appointment//v1//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:${token}@schedule-appointment`,
+    `DTSTAMP:${now}`,
+    `DTSTART;TZID=${config.timezone}:${dtStart}`,
+    `DTEND;TZID=${config.timezone}:${dtEnd}`,
+    `SUMMARY:${summary}`,
+    `DESCRIPTION:Cancellation token: ${token}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n')
+
+  res.setHeader('Content-Type', 'text/calendar; charset=utf-8')
+  res.setHeader('Content-Disposition', `attachment; filename="appointment-${token.substring(0, 8)}.ics"`)
+  return res.send(ics)
 })
 
 export default router
