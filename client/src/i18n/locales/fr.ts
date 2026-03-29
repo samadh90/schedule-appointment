@@ -8,6 +8,8 @@ export default {
     en: 'EN',
     fr: 'FR',
     nl: 'NL',
+    de: 'DE',
+    ru: 'RU',
   },
   slot: {
     title: 'Rendez-vous disponibles',
