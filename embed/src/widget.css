@@ -1,17 +1,46 @@
 /* Intentionally excludes @tailwind base (Preflight) so the widget does not
-   reset the host page's global element styles (headings, links, body…). */
+   reset the host page's global element styles (headings, links, body…).
+   The scoped block below replaces the Preflight rules the widget depends on. */
 @tailwind components;
 @tailwind utilities;
 
-/* Scope box-sizing and button cursor to the widget container only. */
+/* Scoped Preflight essentials ─────────────────────────────────────────────
+   Tailwind utilities like border-*, ring-*, divide-* only set widths; they
+   rely on Preflight setting border-style:solid. Without this block every
+   border and card outline is invisible. */
 .schedule-widget,
 .schedule-widget *,
 .schedule-widget *::before,
 .schedule-widget *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: currentColor;
+}
+
+.schedule-widget {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.schedule-widget button,
+.schedule-widget input,
+.schedule-widget textarea,
+.schedule-widget select {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: inherit;
+  color: inherit;
 }
 
 .schedule-widget button {
-    cursor: pointer;
-    font-family: inherit;
+  cursor: pointer;
+}
+
+.schedule-widget img,
+.schedule-widget svg {
+  display: block;
+  vertical-align: middle;
 }

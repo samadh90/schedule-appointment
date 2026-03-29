@@ -94,10 +94,9 @@
 
     <script type="module">
       import { init } from '/src/widget.ts'
-      // apiBase: where the schedule-appointment API lives.
-      // In production this would be 'https://your-saas-api.example.com'.
-      // Omit (or set to '') to use the same origin as the host page.
-      init('#schedule-widget', { apiBase: 'http://localhost:3000', lang: 'en' })
+      // In production pass apiBase: 'https://your-saas-api.example.com'
+      // In dev the Vite proxy forwards /api and /socket.io to :3000
+      init('#schedule-widget', { lang: 'en' })
     </script>
   </body>
 </html>
