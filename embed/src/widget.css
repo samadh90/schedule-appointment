@@ -1,0 +1,17 @@
+/* Intentionally excludes @tailwind base (Preflight) so the widget does not
+   reset the host page's global element styles (headings, links, body…). */
+@tailwind components;
+@tailwind utilities;
+
+/* Scope box-sizing and button cursor to the widget container only. */
+.schedule-widget,
+.schedule-widget *,
+.schedule-widget *::before,
+.schedule-widget *::after {
+    box-sizing: border-box;
+}
+
+.schedule-widget button {
+    cursor: pointer;
+    font-family: inherit;
+}

@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, onErrorCaptured, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { useAppointmentsStore } from '../../client/src/stores/appointments'
 import { useConnectionStatus } from '../../client/src/composables/useConnectionStatus'
 import ConnectionOverlay from '../../client/src/components/ConnectionOverlay.vue'
 import EmbedNav from './EmbedNav.vue'
 
 const { t } = useI18n()
+const router = useRouter()
 const appointmentsStore = useAppointmentsStore()
 const { isOnline } = useConnectionStatus()
 
@@ -20,8 +22,9 @@ onErrorCaptured(err => {
 onMounted(() => appointmentsStore.connect())
 onUnmounted(() => appointmentsStore.disconnect())
 
-function reloadPage() {
-  window.location.reload()
+function resetWidget() {
+  fatalError.value = null
+  router.push('/')
 }
 </script>
 
@@ -46,7 +49,7 @@ function reloadPage() {
     <h2 class="text-xl font-semibold text-slate-800 mb-2">{{ t('error.boundaryTitle') }}</h2>
     <p class="text-slate-400 text-sm mb-6">{{ t('error.boundaryMsg') }}</p>
     <button
-      @click="reloadPage"
+      @click="resetWidget"
       class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
     >
       {{ t('error.reload') }}

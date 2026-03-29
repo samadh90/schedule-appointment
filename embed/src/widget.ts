@@ -1,12 +1,13 @@
-import { createApp } from 'vue'
+import { createApp, type App } from 'vue'
 import { createPinia } from 'pinia'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import { i18n, saveLocale } from '../../client/src/i18n'
+import { i18n } from '../../client/src/i18n'
+import { setApiBase } from '../../client/src/utils/api'
 import EmbedApp from './EmbedApp.vue'
 import SlotListView from '../../client/src/views/SlotListView.vue'
 import BookView from '../../client/src/views/BookView.vue'
 import CancelView from '../../client/src/views/CancelView.vue'
-import '../../client/src/style.css'
+import './widget.css'
 import 'flag-icons/css/flag-icons.min.css'
 
 const SUPPORTED = ['en', 'fr', 'nl', 'de', 'ru'] as const
@@ -42,12 +43,23 @@ function resolveLocale(hostLang?: string): SupportedLocale {
 }
 
 export interface WidgetOptions {
+  /** Base URL of the schedule-appointment API, e.g. 'https://api.example.com'.
+   *  Defaults to the current page's origin (correct for same-origin SPA use). */
+  apiBase?: string
   lang?: string
 }
 
-export function init(selector: string, options: WidgetOptions = {}) {
+export interface WidgetInstance {
+  /** Unmount the widget and release all resources. */
+  destroy(): void
+}
+
+export function init(selector: string, options: WidgetOptions = {}): WidgetInstance {
   const el = document.querySelector(selector)
   if (!el) throw new Error(`[schedule-widget] Element not found: ${selector}`)
+
+  setApiBase(options.apiBase ?? '')
+  el.classList.add('schedule-widget')
 
   const locale = resolveLocale(options.lang)
   i18n.global.locale.value = locale
@@ -62,9 +74,16 @@ export function init(selector: string, options: WidgetOptions = {}) {
     ],
   })
 
-  const app = createApp(EmbedApp)
+  const app: App = createApp(EmbedApp)
   app.use(createPinia())
   app.use(router)
   app.use(i18n)
   app.mount(el)
+
+  return {
+    destroy() {
+      app.unmount()
+      el.classList.remove('schedule-widget')
+    },
+  }
 }

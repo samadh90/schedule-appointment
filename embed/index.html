@@ -94,8 +94,10 @@
 
     <script type="module">
       import { init } from '/src/widget.ts'
-      // Pass the host site's language — widget falls back to <html lang> then browser then 'en'
-      init('#schedule-widget', { lang: 'en' })
+      // apiBase: where the schedule-appointment API lives.
+      // In production this would be 'https://your-saas-api.example.com'.
+      // Omit (or set to '') to use the same origin as the host page.
+      init('#schedule-widget', { apiBase: 'http://localhost:3000', lang: 'en' })
     </script>
   </body>
 </html>
