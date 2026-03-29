@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dr. Smith — Book an Appointment</title>
+    <style>
+      /* Simulated customer website — nothing to do with the widget */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: Georgia, serif;
+        background: #f5f0eb;
+        color: #2c2c2c;
+      }
+      .site-header {
+        background: #1a3a5c;
+        color: white;
+        padding: 1.5rem 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .site-header h1 {
+        font-size: 1.4rem;
+        font-weight: normal;
+      }
+      .site-header p {
+        font-size: 0.85rem;
+        opacity: 0.75;
+        margin-top: 0.2rem;
+      }
+      .site-nav {
+        background: #15304d;
+        padding: 0.5rem 2rem;
+        display: flex;
+        gap: 1.5rem;
+      }
+      .site-nav a {
+        color: #a8c4dc;
+        text-decoration: none;
+        font-size: 0.875rem;
+      }
+      .site-nav a:hover {
+        color: white;
+      }
+      .site-main {
+        max-width: 960px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+      }
+      .site-main h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: #1a3a5c;
+      }
+      .site-footer {
+        text-align: center;
+        padding: 2rem;
+        font-size: 0.8rem;
+        color: #999;
+        border-top: 1px solid #e0d8d0;
+        margin-top: 3rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <h1>Dr. Emily Smith — General Practice</h1>
+        <p>123 Rue de la Loi · 1040 Brussels &nbsp;|&nbsp; +32 2 000 00 00</p>
+      </div>
+    </header>
+
+    <nav class="site-nav">
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Services</a>
+      <a href="#booking">Book online</a>
+      <a href="#">Contact</a>
+    </nav>
+
+    <main class="site-main">
+      <h2 id="booking">Online Appointment Booking</h2>
+
+      <!-- The widget mounts here -->
+      <div id="schedule-widget"></div>
+    </main>
+
+    <footer class="site-footer">&copy; 2026 Dr. Emily Smith. All rights reserved.</footer>
+
+    <script type="module">
+      import { init } from '/src/widget.ts'
+      // Pass the host site's language — widget falls back to <html lang> then browser then 'en'
+      init('#schedule-widget', { lang: 'en' })
+    </script>
+  </body>
+</html>
