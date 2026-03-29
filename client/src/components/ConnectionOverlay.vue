@@ -2,11 +2,15 @@
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+
+const props = withDefaults(defineProps<{ contained?: boolean }>(), { contained: false })
 </script>
 
 <template>
   <Transition name="fade">
+    <!-- Full-screen overlay for the SPA -->
     <div
+      v-if="!props.contained"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm"
       aria-live="assertive"
       aria-atomic="true"
@@ -18,6 +22,18 @@ const { t } = useI18n()
         </div>
         <p class="text-slate-400 text-sm">{{ t('connection.offlineMsg') }}</p>
       </div>
+    </div>
+
+    <!-- Inline banner for the embed — never touches the host page -->
+    <div
+      v-else
+      class="flex items-center gap-2.5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 mt-3"
+      role="status"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-400 animate-pulse shrink-0" />
+      <span>{{ t('connection.offlineTitle') }} — {{ t('connection.offlineMsg') }}</span>
     </div>
   </Transition>
 </template>

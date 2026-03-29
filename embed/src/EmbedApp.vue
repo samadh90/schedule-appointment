@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, onErrorCaptured, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import ConnectionOverlay from '../../client/src/components/ConnectionOverlay.vue'
 import { useAppointmentsStore } from '../../client/src/stores/appointments'
 import { useConnectionStatus } from '../../client/src/composables/useConnectionStatus'
+import ConnectionOverlay from '../../client/src/components/ConnectionOverlay.vue'
 import EmbedNav from './EmbedNav.vue'
 
 const { t } = useI18n()
@@ -55,6 +55,17 @@ function reloadPage() {
   <template v-else>
     <EmbedNav />
     <router-view />
-    <ConnectionOverlay v-if="!isOnline" />
+    <ConnectionOverlay v-if="!isOnline" :contained="true" />
   </template>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
